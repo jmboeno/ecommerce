@@ -1,12 +1,13 @@
-const fs = require("fs");
-const database = require("../models");
+const { User } = require("../models");
 
 async function getAllUsers() {
-    return database.User.findAll();
+    return User.findAll({
+        order: [['id', 'ASC']],
+    });
 }
 
 async function getUserById(id) {
-    const user = await database.User.findByPk(id);
+    const user = await User.findByPk(id);
     if (!user) {
         return { message: "Usuário não encontrado!" };
     }
@@ -15,7 +16,7 @@ async function getUserById(id) {
 
 async function insertUser(newUser) {
     try {
-        const user = await database.User.create(newUser);
+        const user = await User.create(newUser);
         return user;
     } catch (error) {
         return { message: "Erro ao criar usuário!", error: error.message };
@@ -23,7 +24,7 @@ async function insertUser(newUser) {
 }
 
 async function updateUser(updateInfo, id) {
-    const updatedList = await database.User.update(updateInfo, { where: { id } });
+    const updatedList = await User.update(updateInfo, { where: { id } });
 
     if (updatedList[0] === 0) {
         return { message: "Registro não atualizado!" };
@@ -33,7 +34,7 @@ async function updateUser(updateInfo, id) {
 }
 
 async function deleteUserById(id) {
-    const deletedUser = await database.User.destroy({ where: { id } });
+    const deletedUser = await User.destroy({ where: { id } });
 
     if (deletedUser === 0) {
         return { message: "Usuário não encontrado para exclusão!" };

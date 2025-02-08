@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../images/logo.svg";
 import styled from "styled-components";
 
 const LogoConatiner = styled.div`
@@ -7,17 +6,13 @@ const LogoConatiner = styled.div`
     font-size: 30px;
 `;
 
-const LogoImage = styled.img`
-    margin-right: 10px;
+const LogoText = styled.p`
+    color: #fff;
 `;
 
 const Logo = () => (
     <LogoConatiner>
-        <LogoImage
-            src={logo}
-            alt="logo"
-        />
-        <p><strong>Alura</strong>Books</p>
+        <LogoText><strong>Smart</strong>Recarga</LogoText>
     </LogoConatiner>
 );
 

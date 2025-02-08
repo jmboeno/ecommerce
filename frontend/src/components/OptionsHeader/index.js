@@ -18,14 +18,18 @@ const Option = styled.li`
     min-width: 120px;
 `;
 
-const options = ["CATEGORIAS", "FAVORITOS", "MINHA ESTANTE"];
+const OptionText = styled.p`
+    color: #fff
+`;
+
+const options = ["RECARGAS", "APPS PARA DOWNLOAD", "TROCAS E DEVOLUÇÕES"];
 
 const OptionsHeader = () => (
     <Options>
         {options.map((text, index) => (
-            <Link to={`/${text.toLowerCase()}`}>
+            <Link to={`/${text.toLowerCase()}`} style={{textDecoration: "none"}}>
                 <Option key={index}>
-                    <p>{text}</p>
+                    <OptionText>{text}</OptionText>
                 </Option>
             </Link>
         ))}

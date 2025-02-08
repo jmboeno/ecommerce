@@ -4,11 +4,11 @@ import styled from "styled-components";
 import { getUsers } from "../../services/users";
 
 const SearchContainer = styled.section`
-    background-image: linear-gradient(90deg, #002F52 35%, #326589 165%);
+    background: rgb(0 0 0 / 45%);
     color: #FFF;
     text-align: center;
     padding: 85px 0;
-    height: 470px;
+    height: calc(100% - (85px* 2));
     width: 100%;
 `;
 
@@ -69,8 +69,8 @@ const Search = () => {
 
     return (
         <SearchContainer>
-            <Title>Já sabe por onde começar?</Title>
-            <SubTitle>Encontre seu livro na nossa estante.</SubTitle>
+            <Title>Facilidade e rapidez na sua recarga!</Title>
+            <SubTitle>Adquira sua recarga para TV por assinatura de forma segura e sem complicações.</SubTitle>
             <Input
                 placeholder="Escreva sua próxima leitura"
                 onBlur={handleSearch}

@@ -1,4 +1,3 @@
-const fs = require("fs");
 const { Plan } = require("../models");
 const { Sequelize } = require('sequelize');
 
@@ -10,9 +9,11 @@ async function getAllPlans() {
 
 async function getPlanById(id) {
     const plan = await Plan.findByPk(id);
+
     if (!plan) {
         return { message: "Plano não encontrado!" };
     }
+
     return plan;
 }
 
