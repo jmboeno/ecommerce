@@ -10,7 +10,7 @@ async function authenticate(dto) {
     });
 
     if (!user) {
-        return { message: "Usuário não cadastrado!" };
+        return { message: "Usuário ou senha incorreta!" };
     }
 
     const equalPassword = await compare(dto.password, user.password_hash);
