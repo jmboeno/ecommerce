@@ -1,9 +1,33 @@
-const { Recharge } = require("../models");
+const { Recharge, User, Plan } = require("../models");
+const { Sequelize } = require('sequelize');
 
 async function getAllRecharges() {
-    return Recharge.findAll({
+    const recharges = await Recharge.findAll({
+        include: [
+            {
+                model: User,
+                as: 'user',
+                attributes: ['name'], 
+            },
+            {
+                model: Plan,
+                as: 'plan',
+                attributes: ['name'], 
+            }
+        ],
+        raw: true,
+        attributes: ['id','smart_card_number', 'status', 'smart_card_number', 'createdAt', 'updatedAt'],
         order: [['id', 'ASC']],
     });
+
+    return recharges.map(recharge => ({
+        id: recharge.id,
+        plan: recharge['plan.name'],
+        smart_card_number: recharge.smart_card_number,
+        status: recharge.status,
+        createdAt: recharge.createdAt,
+        updatedAt: recharge.updatedAt,
+    }));
 }
 
 async function getRechargeById(id) {

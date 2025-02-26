@@ -27,8 +27,8 @@ const options = ["RECARGAS", "APPS PARA DOWNLOAD", "TROCAS E DEVOLUÇÕES"];
 const OptionsHeader = () => (
     <Options>
         {options.map((text, index) => (
-            <Link to={`/${text.toLowerCase()}`} style={{textDecoration: "none"}}>
-                <Option key={index}>
+            <Link key={index} to={`/${text.toLowerCase()}`} style={{textDecoration: "none"}}>
+                <Option>
                     <OptionText>{text}</OptionText>
                 </Option>
             </Link>

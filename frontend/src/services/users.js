@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const usersAPI = axios.create({baseURL: "http://localhost:8000/users"});
+const usersAPI = axios.create({ baseURL: "http://localhost:8000/users" });
 
 async function getUsers() {
     const response = await usersAPI.get("/");

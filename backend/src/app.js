@@ -1,4 +1,5 @@
 const express = require("express");
+const loginRoute = require("./routes/login");
 const usersRoute = require("./routes/users");
 const plansRoute = require("./routes/plans");
 const providersRoute = require("./routes/providers");
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({origin: "*"}));
+app.use("/login", loginRoute);
 app.use("/users", usersRoute);
 app.use("/plans", plansRoute);
 app.use("/providers", providersRoute);

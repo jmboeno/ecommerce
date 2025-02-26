@@ -33,11 +33,11 @@ async function postUser(req, res) {
     try {
         const newUser = req.body;
 
-        if (newUser.name) {
+        if (newUser.email && newUser.password) {
             const createdUser = await insertUser(newUser);
             return res.status(201).json(createdUser);
         } else {
-            return res.status(422).json({ message: "O campo nome é obrigatório" });
+            return res.status(422).json({ message: "Os campos email e senha são obrigatórios" });
         }
     } catch (error) {
         return res.status(500).json({ message: error.message });
