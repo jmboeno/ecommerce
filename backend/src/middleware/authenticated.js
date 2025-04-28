@@ -2,24 +2,24 @@ const { verify, decode } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
 
 module.exports = async (req, res, next) => {
-    const token = req.headers.authorization;
+	const token = req.headers.authorization;
 
-    if (!token) {
-        return res.status(401).send("Acess token não informado");
-    }
+	if (!token) {
+		return res.status(401).send("Acess token não informado");
+	}
 
-    const [_, accessToken] = token.split(" ");
+	const [_, accessToken] = token.split(" ");
 
-    try {
-        verify(accessToken, jsonSecret.secret);
+	try {
+		verify(accessToken, jsonSecret.secret);
 
-        const { id, email } = await decode(accessToken);
+		const { id, email } = await decode(accessToken);
 
-        req.userId = id;
-        req.userEmail = email;
+		req.user_id = id;
+		req.user_email = email;
 
-        return next();
-    } catch (error) {
-        res.status(401).send("Usuário não autorizado");
-    }
-}
+		return next();
+	} catch (error) {
+		res.status(401).send("Usuário não autorizado");
+	}
+};

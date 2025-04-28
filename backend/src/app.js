@@ -1,12 +1,13 @@
 const express = require("express");
-const loginRoute = require("./routes/login");
-const usersRoute = require("./routes/users");
-const plansRoute = require("./routes/plans");
-const providersRoute = require("./routes/providers");
-const rechargesRoute = require("./routes/recharges");
-const paymentsRoute = require("./routes/payments");
-const rolesRoute = require("./routes/roles");
-const permissionsRoute = require("./routes/permissions");
+const loginRoute = require("./routes/loginRoute");
+const usersRoute = require("./routes/usersRoute");
+const plansRoute = require("./routes/plansRoute");
+const providersRoute = require("./routes/providersRoute");
+const rechargesRoute = require("./routes/rechargesRoute");
+const paymentsRoute = require("./routes/paymentsRoute");
+const rolesRoute = require("./routes/rolesRoute");
+const permissionsRoute = require("./routes/permissionsRoute");
+const securityRoute = require("./routes/securityRoute");
 const cors = require("cors");
 
 const app = express();
@@ -21,13 +22,10 @@ app.use("/recharges", rechargesRoute);
 app.use("/payments", paymentsRoute);
 app.use("/roles", rolesRoute);
 app.use("/permissions", permissionsRoute);
+app.use("/security", securityRoute);
 
 const port = 8000;
 
-app.get("/", (req, res) => {
-    res.send("Olá mundo da alura!");
-});
-
 app.listen(port, () => {
-    console.log(`Escutando a porta ${port}`)
+	console.log(`Escutando a porta ${port}`);
 });
