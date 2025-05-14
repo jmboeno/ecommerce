@@ -45,18 +45,21 @@ async function insertAcl(dto) {
 	await user.addUser_permissions(registeredPermissions);
 
 	const newUser = await User.findOne({
-		includes: [
+		include: [
 			{
 				model: Role,
 				as: "user_roles",
-				attributes: ["id", "name", "description"]
+				attributes: ["id", "name", "description"],
+				through: { attributes: [] }
 			},
 			{
 				model: Permission,
 				as: "user_permissions",
-				attributes: ["id", "name", "description"]
+				attributes: ["id", "name", "description"],
+				through: { attributes: [] }
 			}
-		]
+		],
+		where: { id: dto.user_id }
 	});
 
 	return newUser;

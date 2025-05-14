@@ -5,7 +5,7 @@ module.exports = async (req, res, next) => {
 	const token = req.headers.authorization;
 
 	if (!token) {
-		return res.status(401).send("Acess token não informado");
+		return res.status(401).send("Access token não informado");
 	}
 
 	const [_, accessToken] = token.split(" ");
@@ -13,7 +13,7 @@ module.exports = async (req, res, next) => {
 	try {
 		verify(accessToken, jsonSecret.secret);
 
-		const { id, email } = await decode(accessToken);
+		const { id, email } = decode(accessToken);
 
 		req.user_id = id;
 		req.user_email = email;
