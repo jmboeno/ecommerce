@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { NavLink as RouterNavLink, Outlet } from "react-router-dom";
 import { UserRegistrationProvider } from "../../context/UserRegistration";
-import { FaUser } from "react-icons/fa"; // Exemplo de ícone
+import { FaUser, FaUsers, FaUserShield } from "react-icons/fa";
+import { MdAddCard, MdViewList, MdBusiness, MdSecurity, MdPayments } from "react-icons/md";
 import styled from "@emotion/styled";
 
 const LayoutContainer = styled.div`
@@ -25,14 +26,14 @@ const Sidebar = styled.aside`
 
 const CollapseButton = styled.button`
   position: absolute;
-  top: 10px;
-  right: -10px;
-  background: #333;
+  top: 5px;
+  right: -15px;
+  background: ${({ theme }) => theme.colors.primary.a};
   color: white;
   border: none;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
 `;
 
@@ -53,10 +54,12 @@ const NavItem = styled.li`
   width: 100%;
 `;
 
-const StyledNavLink = styled(RouterNavLink)`
+const StyledNavLink = styled(RouterNavLink, {
+	shouldForwardProp: (prop) => prop !== "collapsed"
+})`
 	color: white;
 	text-decoration: none;
-	padding: 8px 16px;
+	padding: 10px 20px;
 	display: flex;
 	align-items: center;
 	transition: background 0.3s ease;
@@ -69,7 +72,7 @@ const StyledNavLink = styled(RouterNavLink)`
 	svg {
 		flex-shrink: 0;
 		min-width: 20px;
-		margin-right: ${props => (props.collapsed ? "0" : "8px")};
+		margin-right: ${props => (props.collapsed ? "0" : "30px")};
 		transition: margin-right 0.3s ease;
 	}
 
@@ -88,7 +91,7 @@ const Content = styled.main`
   background: #f5f5f5;
 `;
 
-const BaseLayoutLoggedArea = () => {
+const BaseLayoutDashboard = () => {
 	const [collapsed, setCollapsed] = useState(false);
 
 	const toggleSidebar = () => {
@@ -106,13 +109,37 @@ const BaseLayoutLoggedArea = () => {
 					<Nav>
 						<NavList>
 							<NavItem>
-								<StyledNavLink to="/logged-area/profile" title="Perfil" collapsed={collapsed}>
+								<StyledNavLink to="/dashboard/profile" title="Perfil" collapsed={collapsed}>
 									<FaUser />
 									<span>Perfil</span>
 								</StyledNavLink>
-								<StyledNavLink to="/logged-area/pedidos" title="Perfil" collapsed={collapsed}>
-									<FaUser />
-									<span>Pedidos</span>
+								<StyledNavLink to="/dashboard/users" title="Usuários" collapsed={collapsed}>
+									<FaUsers />
+									<span>Usuários</span>
+								</StyledNavLink>
+								<StyledNavLink to="/dashboard/roles" title="Cargos" collapsed={collapsed}>
+									<FaUserShield />
+									<span>Cargos</span>
+								</StyledNavLink>
+								<StyledNavLink to="/dashboard/permissions" title="Permissões" collapsed={collapsed}>
+									<MdSecurity />
+									<span>Permissões</span>
+								</StyledNavLink>
+								<StyledNavLink to="/dashboard/recharges" title="Recharges" collapsed={collapsed}>
+									<MdAddCard />
+									<span>Recharges</span>
+								</StyledNavLink>
+								<StyledNavLink to="/dashboard/plans" title="Plans" collapsed={collapsed}>
+									<MdViewList />
+									<span>Plans</span>
+								</StyledNavLink>
+								<StyledNavLink to="/dashboard/providers" title="Provedores" collapsed={collapsed}>
+									<MdBusiness />
+									<span>Provedores</span>
+								</StyledNavLink>
+								<StyledNavLink to="/dashboard/payments" title="Pagamentos" collapsed={collapsed}>
+									<MdPayments />
+									<span>Pagamentos</span>
 								</StyledNavLink>
 							</NavItem>
 						</NavList>
@@ -126,4 +153,4 @@ const BaseLayoutLoggedArea = () => {
 	);
 };
 
-export default BaseLayoutLoggedArea;
+export default BaseLayoutDashboard;

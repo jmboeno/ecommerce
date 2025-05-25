@@ -2,7 +2,7 @@ const { getAllPlans, insertPlan, getPlanById, getPlansByName, updatePlan, delete
 
 async function getPlans(req, res) {
 	try {
-		const listAllPlans = await getAllPlans();
+		const listAllPlans = await getAllPlans(req.query);
 		return res.status(200).json(listAllPlans);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

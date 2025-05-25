@@ -25,14 +25,12 @@ const Login = () => {
 	const { login } = useUserSessionContext()
 	const navigate = useNavigate()
 
-	const handleLogin = (event) => {
+	const handleLogin = async(event) => {
 		event.preventDefault()
-		try {
-			login(email, password)
-			navigate("/logged-area/profile")
-		} catch (error) {
-			toast.error("Login failed. Please check your credentials.")
-		}
+
+		login(email, password)
+			.then(() => navigate("/dashboard/profile"))
+			.catch(() =>toast.error("Login failed. Please check your credentials."))
 	}
 
 	return (

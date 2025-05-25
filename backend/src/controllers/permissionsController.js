@@ -14,7 +14,7 @@ async function postPermission(req, res) {
 
 async function getPermissions(req, res) {
 	try {
-		const listAllPermissions = await getAllPermissions();
+		const listAllPermissions = await getAllPermissions(req.query);
 		return res.status(200).json(listAllPermissions);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

@@ -1,33 +1,53 @@
 const { Recharge, User, Plan } = require("../models");
-const { Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
 
-async function getAllRecharges() {
-	const recharges = await Recharge.findAll({
+async function getAllRecharges({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const whereUser = search
+		? {
+			"plan.name": {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: undefined;
+
+	const order = (() => {
+		if (orderBy.includes(".")) {
+			const [association, field] = orderBy.split(".");
+			if (association === "plan") {
+				return [[{ model: Plan, as: "plan" }, field, orderDirection]];
+			}
+			if (association === "user") {
+				return [[{ model: User, as: "user" }, field, orderDirection]];
+			}
+		}
+		return [[orderBy, orderDirection]];
+	})();
+
+	const { count, rows } = await Recharge.findAndCountAll({
 		include: [
 			{
 				model: User,
 				as: "user",
-				attributes: ["name"], 
+				attributes: ["name"]
 			},
 			{
 				model: Plan,
 				as: "plan",
-				attributes: ["name"], 
+				attributes: ["name"],
+				where: whereUser
 			}
 		],
 		raw: true,
-		attributes: ["id","smart_card_number", "status", "smart_card_number", "createdAt", "updatedAt"],
-		order: [["id", "ASC"]],
+		limit,
+		offset,
+		attributes: ["id", "smart_card_number", "status", "createdAt", "updatedAt", "user.name", "plan.name"],
+		order,
 	});
 
-	return recharges.map(recharge => ({
-		id: recharge.id,
-		plan: recharge["plan.name"],
-		smart_card_number: recharge.smart_card_number,
-		status: recharge.status,
-		createdAt: recharge.createdAt,
-		updatedAt: recharge.updatedAt,
-	}));
+	return {
+		total: count,
+		data: rows
+	};
 }
 
 async function getRechargeById(id) {

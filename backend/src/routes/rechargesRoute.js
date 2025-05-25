@@ -6,7 +6,7 @@ const { roles } = require("../middleware/roles");
 const router = Router();
 
 router.use(authenticated);
-router.get("/", roles(["Gerente"]), getRecharges);
+router.get("/", roles(["Gerente", "Client"]), getRecharges);
 router.get("/:id", getRecharge);
 router.post("/", postRecharge);
 router.patch("/:id", patchRecharge);

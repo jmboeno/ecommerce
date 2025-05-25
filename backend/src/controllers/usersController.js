@@ -2,7 +2,7 @@ const { getAllUsers, getUserById, insertUser, updateUser, deleteUserById } = req
 
 async function getUsers(req, res) {
 	try {
-		const listAllUsers = await getAllUsers();
+		const listAllUsers = await getAllUsers(req.query);
 		return res.status(200).json(listAllUsers);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

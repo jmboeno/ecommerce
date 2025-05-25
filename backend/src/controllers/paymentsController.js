@@ -2,7 +2,7 @@ const { getAllPayments, getPaymentById, insertPayment, updatePayment, deletePaym
 
 async function getPayments(req, res) {
 	try {
-		const listAllPayments = await getAllPayments();
+		const listAllPayments = await getAllPayments(req.query);
 		return res.status(200).json(listAllPayments);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

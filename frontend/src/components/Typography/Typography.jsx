@@ -5,6 +5,7 @@ const components = {
 	h1: 'h1',
 	h2: 'h2',
 	h3: 'h3',
+	h4: 'h4',
 	body: 'p',
 	bodyBold: 'strong',
 	body2: 'p',
@@ -14,45 +15,55 @@ const components = {
 
 const styles = {
 	h1: `
-        font-weight: 600;
-        font-size: 40px;
-        line-height: 49px;
-    `,
+		font-weight: 600;
+		font-size: 40px;
+		line-height: 49px;
+	`,
 	h2: `
-        font-weight: 600;
-        font-size: 32px;
-        line-height: 39px;
-    `,
+		font-weight: 600;
+		font-size: 32px;
+		line-height: 39px;
+	`,
 	h3: `
-        font-weight: 500;
-        font-size: 24px;
-        line-height: 29px;
-    `,
+		font-weight: 500;
+		font-size: 24px;
+		line-height: 29px;
+	`,
+	h4: `
+		font-weight: 500;
+		font-size: 20px;
+		line-height: 24px;
+	`,
 	body: `
-        font-weight: 400;
-        font-size: 20px;
-        line-height: 24px;
-    `,
+		font-weight: 400;
+		font-size: 20px;
+		line-height: 24px;
+	`,
+	body1: `
+		font-weight: 400;
+		font-size: 18px;
+		line-height: 22px;
+	`,
 	bodyBold: `
-        font-weight: 700;
-        font-size: 20px;
-        line-height: 24px;
-    `,
+		font-weight: 700;
+		font-size: 20px;
+		line-height: 24px;
+	`,
 	body2: `
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 20px;
-    `,
+		font-weight: 400;
+		font-size: 16px;
+		line-height: 20px;
+	`,
 	body2Bold: `
-        font-weight: 700;
-        font-size: 16px;
-        line-height: 20px;
-    `,
+		font-weight: 700;
+		font-size: 16px;
+		line-height: 20px;
+	`,
 	caption: `
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 17px;
-    `
+		font-weight: 400;
+		font-size: 14px;
+		line-height: 17px;
+	`
 };
 
 export const Typography = ({ variant, component, children }) => {

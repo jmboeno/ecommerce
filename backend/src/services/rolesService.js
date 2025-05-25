@@ -23,10 +23,28 @@ async function insertRole(dto) {
 	}
 };
 
-async function getAllRoles() {
-	return Role.findAll({
-		order: [["id", "ASC"]],
+async function getAllRoles({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const where = search
+		? {
+			name: {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: undefined;
+
+	const { count, rows } = await Role.findAndCountAll({
+		where,
+		limit,
+		offset,
+		order: [[orderBy, orderDirection]],
+		attributes: ["id", "name", "description", "createdAt", "updatedAt"],
+		raw: true
 	});
+
+	return {
+		total: count,
+		data: rows
+	};
 }
 
 module.exports = {

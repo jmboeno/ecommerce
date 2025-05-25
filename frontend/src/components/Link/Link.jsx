@@ -1,36 +1,44 @@
-import React from 'react'
-import styled from '@emotion/styled';
+import React from "react";
+import styled from "@emotion/styled";
+import { NavLink as RouterNavLink } from "react-router-dom";
 
-const PrimaryLink = styled.a`
-    cursor: pointer;
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 24px;
-    text-decoration: none;    
-    color: ${props => props.theme.colors.white};
-    &:hover {
-        color: ${props => props.theme.colors.dark.a};
-    }
-`;
-const SecondaryLink = styled.a`
-    cursor: pointer;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 20px;
-    color: ${props => props.theme.colors.primary.b};
-    &:hover {
-        font-weight: bold;
-        border-bottom: 1px solid ${props => props.theme.colors.primary.b};
-    }
-`;
+const PrimaryLink = styled(RouterNavLink)`
+	cursor: pointer;
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 24px;
+	text-decoration: none;
+	color: ${props => props.theme.colors.white};
 
-export const Link = ({ children, variant = 'primary' }) => {
-	if (variant === 'primary') {
-		return <PrimaryLink variant={variant}>
-			{children}
-		</PrimaryLink>;
+	&:hover {
+		color: ${props => props.theme.colors.dark.a};
 	}
-	return <SecondaryLink variant={variant}>
-		{children}
-	</SecondaryLink>;
+`;
+
+const SecondaryLink = styled(RouterNavLink)`
+	cursor: pointer;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 20px;
+	color: ${props => props.theme.colors.primary.b};
+
+	&:hover {
+		font-weight: bold;
+		border-bottom: 1px solid ${props => props.theme.colors.primary.b};
+	}
+`;
+
+export const Link = ({ children, to, variant = "primary", ...rest }) => {
+	if (variant === "primary") {
+		return (
+			<PrimaryLink to={to} {...rest}>
+				{children}
+			</PrimaryLink>
+		);
+	}
+	return (
+		<SecondaryLink to={to} {...rest}>
+			{children}
+		</SecondaryLink>
+	);
 };

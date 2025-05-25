@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import http from '../http';
 import { TokenStorage } from "../utils/TokenStorage";
 
@@ -14,21 +14,35 @@ export const useUserSessionContext = () => {
 }
 
 export const UserSessionProvider = ({ children }) => {
-	const login = (email, password) => {
-		http.post('/auth/login', {
+	const [isUserLoggedIn, setIsUserLoggedIn] = useState(Boolean(TokenStorage.accessToken));
+
+	const login = async (email, password) => {
+		const response = await http.post('/auth/login', {
 			email,
 			password,
-		})
-			.then(response => {
-				TokenStorage.setTokens(
-					response.data.accessToken,
-					response.data.refreshToken
-				)
-			})
-			.catch(error => console.log(error))
+		});
+
+		try {
+			TokenStorage.setTokens(
+				response.data.accessToken,
+				response.data.refreshToken
+			)
+			setIsUserLoggedIn(true);
+		} catch(error) {
+			console.log(error)
+		}
 	}
 
-	const value = { login };
+	const logout = () => {
+		TokenStorage.logout();
+		setIsUserLoggedIn(false);
+	}
+
+	const value = {
+		login,
+		logout,
+		isUserLoggedIn
+	};
 
 	return (
 		<UserSessionContext.Provider value={value}>

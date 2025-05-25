@@ -11,7 +11,7 @@ async function getProfile(req, res) {
 	const { id } = getTokenInfo(req);
 
 	try {
-		const user = await getUserById(id);
+		const user = await getUserById(id, ["id", "name", "phone", "email", "user_roles"]);
 		return res.status(200).json(user);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

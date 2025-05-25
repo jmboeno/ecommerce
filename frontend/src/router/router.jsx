@@ -7,14 +7,21 @@ import InitialPage from "../pages/initial-page/InitialPage";
 import Page404 from "../pages/errors/Page404";
 import BaseLayout from "../pages/BaseLayout";
 import Login from "../pages/login/Login";
-import Profile from "../pages/logged-area/Profile";
-import BaseLayoutLoggedArea from "../pages/logged-area/BaseLayoutLoggedArea";
+import Profile from "../pages/dashboard/Profile";
+import Recharges from '../pages/dashboard/Recharges';
+import BaseLayoutDashboard from '../pages/dashboard/BaseLayoutDashboard';
+import Users from '../pages/dashboard/Users';
+import Plans from '../pages/dashboard/Plans';
+import Roles from '../pages/dashboard/Roles';
+import Permissions from '../pages/dashboard/Permissions';
+import Providers from '../pages/dashboard/Providers';
+import Payments from '../pages/dashboard/Payments';
 
 export const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <BaseLayout />,
-		ErrorBoundary: Page404,
+		errorElement: <Page404 />,
 		children: [
 			{
 				path: "",
@@ -39,19 +46,44 @@ export const router = createBrowserRouter([
 				],
 			},
 			{
-				path: "logged-area",
-				element: <BaseLayoutLoggedArea />,
+				path: "dashboard",
+				element: <BaseLayoutDashboard />,
 				children: [
 					{
 						path: "profile",
 						element: <Profile />,
 					},
 					{
-						path: "pedidos",
-						element: <div />,
+						path: "recharges",
+						element: <Recharges />,
+					},
+					{
+						path: "users",
+						element: <Users />,
+					},
+					{
+						path: "plans",
+						element: <Plans />,
+					},
+					{
+						path: "roles",
+						element: <Roles />,
+					},
+					{
+						path: "permissions",
+						element: <Permissions />,
+					},
+					{
+						path: "providers",
+						element: <Providers />,
+					},
+					{
+						path: "payments",
+						element: <Payments />,
 					},
 				],
 			},
+			{ path: "*", element: <Page404 /> },
 		],
 	},
 ]);

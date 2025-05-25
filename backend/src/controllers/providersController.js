@@ -2,7 +2,7 @@ const { getAllProviders, insertProvider, getProviderById, getProviderByName, upd
 
 async function getProviders(req, res) {
 	try {
-		const listAllProviers = await getAllProviders();
+		const listAllProviers = await getAllProviders(req.query);
 		return res.status(200).json(listAllProviers);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

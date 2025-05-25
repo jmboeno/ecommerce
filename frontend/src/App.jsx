@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { RouterProvider } from "react-router-dom";
 import { GlobalStyles } from "./components/GlobalStyles/GlobalStyles";
 import { ThemeProviderWrapper } from "./components/ThemeProvider/ThemeProvider";

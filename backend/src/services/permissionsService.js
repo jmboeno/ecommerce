@@ -1,5 +1,30 @@
+const { Op } = require("sequelize");
 const { Permission } = require("../models");
 const uuid = require("uuid");
+
+async function getAllPermissions({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const where = search
+		? {
+			name: {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: undefined;
+
+	const { count, rows } = await Permission.findAndCountAll({
+		where,
+		limit,
+		offset,
+		order: [[orderBy, orderDirection]],
+		attributes: ["id", "name", "description", "createdAt", "updatedAt"],
+		raw: true
+	});
+
+	return {
+		total: count,
+		data: rows
+	};
+}
 
 async function insertPermission(dto) {
 	const permission = await Permission.findOne({
@@ -22,12 +47,6 @@ async function insertPermission(dto) {
 		throw new Error(error);
 	}
 };
-
-async function getAllPermissions() {
-	return Permission.findAll({
-		order: [["id", "ASC"]],
-	});
-}
 
 module.exports = {
 	getAllPermissions,

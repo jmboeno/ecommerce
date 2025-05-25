@@ -1,12 +1,29 @@
 const { Plan } = require("../models");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
-async function getAllPlans() {
-	return Plan.findAll({
-		order: [["id", "ASC"]],
+async function getAllPlans({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const where = search
+		? {
+			name: {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: undefined;
+
+	const { count, rows } = await Plan.findAndCountAll({
+		where,
+		limit,
+		offset,
+		order: [[orderBy, orderDirection]],
+		attributes: ["id", "name", "price", "duration_days", "createdAt", "updatedAt"],
+		raw: true
 	});
-}
 
+	return {
+		total: count,
+		data: rows
+	};
+}
 async function getPlanById(id) {
 	const plan = await Plan.findByPk(id);
 

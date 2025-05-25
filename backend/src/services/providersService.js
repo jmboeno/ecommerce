@@ -1,10 +1,29 @@
 const { Provider } = require("../models");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
-async function getAllProviders() {
-	return Provider.findAll({
-		order: [["id", "ASC"]],
+
+async function getAllProviders({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const where = search
+		? {
+			name: {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: undefined;
+
+	const { count, rows } = await Provider.findAndCountAll({
+		where,
+		limit,
+		offset,
+		order: [[orderBy, orderDirection]],
+		attributes: ["id", "name", "createdAt", "updatedAt"],
+		raw: true
 	});
+
+	return {
+		total: count,
+		data: rows
+	};
 }
 
 async function getProviderById(id) {

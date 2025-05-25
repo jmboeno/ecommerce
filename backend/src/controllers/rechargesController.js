@@ -2,7 +2,7 @@ const { getAllRecharges, getRechargeById, insertRecharge, updateRecharge, delete
 
 async function getRecharges(req, res) {
 	try {
-		const listAllRecharges = await getAllRecharges();
+		const listAllRecharges = await getAllRecharges(req.query);
 		return res.status(200).json(listAllRecharges);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

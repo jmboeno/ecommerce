@@ -1,9 +1,28 @@
+const { Op } = require("sequelize");
 const { Payment } = require("../models");
 
-async function getAllPayments() {
-	return Payment.findAll({
-		order: [["id", "ASC"]],
+async function getAllPayments({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const where = search
+		? {
+			payment_method: {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: undefined;
+
+	const { count, rows } = await Payment.findAndCountAll({
+		where,
+		limit,
+		offset,
+		order: [[orderBy, orderDirection]],
+		attributes: ["id", "amount", "payment_method", "status", "createdAt", "updatedAt"],
+		raw: true
 	});
+
+	return {
+		total: count,
+		data: rows
+	};
 }
 
 async function getPaymentById(id) {

@@ -14,7 +14,7 @@ async function postRole(req, res) {
 
 async function getRoles(req, res) {
 	try {
-		const listAllRoles = await getAllRoles();
+		const listAllRoles = await getAllRoles(req.query);
 		return res.status(200).json(listAllRoles);
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

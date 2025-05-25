@@ -1,37 +1,93 @@
+const { Op } = require("sequelize");
 const { User, Role, Permission } = require("../models");
 const { hash } = require("bcryptjs");
 
-async function getAllUsers() {
-	return await User.findAll({
+async function getAllUsers({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
+	const whereUser = search
+		? {
+			name: {
+				[Op.iLike]: `%${search}%`
+			}
+		}
+		: {};
+
+	const { count, rows } = await User.findAndCountAll({
+		where: whereUser,
+		attributes: {
+			exclude: ["password_hash"]
+		},
 		include: [
 			{
 				model: Role,
 				as: "user_roles",
 				attributes: ["id", "name", "description"],
-				through: {
-					attributes: [],
-				}
+				through: { attributes: [] }
 			},
 			{
 				model: Permission,
 				as: "user_permissions",
 				attributes: ["id", "name", "description"],
-				through: {
-					attributes: [],
-				}
+				through: { attributes: [] }
 			}
-		]
+		],
+		limit,
+		offset,
+		order: [[orderBy, orderDirection]]
 	});
+
+	return {
+		total: count,
+		data: rows
+	};
 }
 
-async function getUserById(id) {
-	const user = await User.findByPk(id);
+async function getUserById(id, fields = null) {
+	const baseAttributes = [];
+	const includes = [];
 
-	if (!user) {
-		return { message: "Usuário não encontrado!" };
+	if (!fields) {
+		return await User.findByPk(id, {
+			include: [
+				{
+					model: Role,
+					as: "user_roles",
+					attributes: ["id", "name", "description"],
+					through: { attributes: [] }
+				},
+				{
+					model: Permission,
+					as: "user_permissions",
+					attributes: ["id", "name", "description"],
+					through: { attributes: [] }
+				}
+			]
+		});
 	}
 
-	return user;
+	for (const field of fields) {
+		if (field === "user_roles") {
+			includes.push({
+				model: Role,
+				as: "user_roles",
+				attributes: ["id", "name", "description"],
+				through: { attributes: [] }
+			});
+		} else if (field === "user_permissions") {
+			includes.push({
+				model: Permission,
+				as: "user_permissions",
+				attributes: ["id", "name", "description"],
+				through: { attributes: [] }
+			});
+		} else {
+			baseAttributes.push(field);
+		}
+	}
+
+	return await User.findByPk(id, {
+		attributes: baseAttributes,
+		include: includes.length > 0 ? includes : undefined
+	});
 }
 
 async function insertUser(dto) {

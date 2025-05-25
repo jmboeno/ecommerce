@@ -7,8 +7,8 @@ const theme = {
 		alert: "",
 		focus: "#B009FF",
 		primary: {
-			a: "#5754ED",
-			b: "#D93114",
+			a: "#45b1ff",
+			b: "#2a91dc",
 			c: "",
 		},
 		secondary: {
@@ -26,6 +26,9 @@ const theme = {
 			a: "",
 			b: "#B61B00",
 		},
+		opacity: {
+			a: "#93939361"
+		}
 	},
 	spacings: {
 		xs: "8px",
