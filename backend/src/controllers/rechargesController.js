@@ -34,7 +34,7 @@ async function postRecharge(req, res) {
 		const newRecharge = req.body;
 
 		if (newRecharge.smart_card_number) {
-			const createdRecharge = await insertRecharge(newRecharge);
+			const createdRecharge = await insertRecharge({ ...newRecharge, status: "inactive" });
 			return res.status(201).json(createdRecharge);
 		} else {
 			return res.status(422).json({ message: "O campo smart_card_number é obrigatório" });

@@ -9,6 +9,7 @@ import { TextField } from "../../components/TextField/TextField";
 import { Button } from "../../components/Button/Button";
 import http from "../../http";
 import { toast } from "react-toastify"
+import DetroitLoading from '../../components/Loading/DetroitLoading';
 
 const StyledTitle = styled.h1`
 	background: url(${background}) no-repeat;
@@ -84,11 +85,7 @@ const Profile = () => {
 	}
 
 	if (loading) {
-		return (
-			<LoadingWrapper>
-				Carregando informações do perfil...
-			</LoadingWrapper>
-		)
+		return <DetroitLoading />;
 	}
 
 	return (

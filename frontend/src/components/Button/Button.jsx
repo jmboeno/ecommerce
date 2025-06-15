@@ -27,12 +27,11 @@ const VARIANT_STYLES = (theme, variant) => {
 			color: theme.colors.white,
 			hoverBg: theme.colors.warning.b,
 		};
-	case "default":
 	default:
 		return {
-			background: "transparent",
-			color: theme.colors.primary.b,
-			border: `2px solid ${theme.colors.primary.b}`,
+			background: theme.colors.default.a,
+			color: theme.colors.dark.b,
+			border: `2px solid ${theme.colors.dark.b}`,
 			hoverColor: theme.colors.dark.b,
 		};
 	}
@@ -98,7 +97,7 @@ const StyledButton = styled.button`
 
 export const Button = ({
 	children,
-	variant = "primary",
+	variant = "default",
 	size = "medium",
 	...props
 }) => {

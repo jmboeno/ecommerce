@@ -4,7 +4,7 @@ const { Op } = require("sequelize");
 async function getAllRecharges({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
 	const whereUser = search
 		? {
-			"plan.name": {
+			"name": {
 				[Op.iLike]: `%${search}%`
 			}
 		}
@@ -40,7 +40,7 @@ async function getAllRecharges({ limit, offset, search, orderBy = "id", orderDir
 		raw: true,
 		limit,
 		offset,
-		attributes: ["id", "smart_card_number", "status", "createdAt", "updatedAt", "user.name", "plan.name"],
+		attributes: ["id", "smart_card_number", "status", "createdAt", "updatedAt", "user_id", "plan_id", "user.name", "plan.name"],
 		order,
 	});
 
@@ -84,7 +84,7 @@ async function deleteRechargeById(id) {
 		return { message: "Recarga não encontrado para exclusão!" };
 	}
 
-	return { message: "Recarga excluído com sucesso!" };
+	return { message: "Recarga excluída com sucesso!" };
 }
 
 module.exports = {

@@ -6,9 +6,20 @@ const theme = {
 		white: "#FFF",
 		alert: "",
 		focus: "#B009FF",
+		font: "#1f1f1f",
+		default: {
+			a: "#c2c6cd",
+			b: "#2a2b35",
+			c: "",
+		},
 		primary: {
 			a: "#45b1ff",
 			b: "#2a91dc",
+			c: "",
+		},
+		danger: {
+			a: "#ff4545",
+			b: "#bb2828",
 			c: "",
 		},
 		secondary: {
@@ -23,8 +34,8 @@ const theme = {
 			d: "",
 		},
 		dark: {
-			a: "",
-			b: "#B61B00",
+			a: "#82878f",
+			b: "#494949",
 		},
 		opacity: {
 			a: "#93939361"

@@ -3,6 +3,8 @@ const { compare } = require("bcryptjs");
 const { sign, verify, decode } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
 
+const MIN_LOGIN_TIME_MS = 2000;
+
 function generatePairToken(user) {
 	const accessToken = sign(
 		{ id: user.id, email: user.email },
@@ -19,23 +21,39 @@ function generatePairToken(user) {
 	return { accessToken, refreshToken };
 }
 
+function wait(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function authenticate(dto) {
+	const startTime = Date.now();
+
 	const user = await User.findOne({
 		attributes: ["id", "email", "password_hash"],
 		where: { email: dto.email }
 	});
 
+	let response;
+
 	if (!user) {
-		return { message: "Usuário ou senha incorreta!" };
+		response = { message: "Usuário ou senha incorreta!" };
+	} else {
+		const equalPassword = await compare(dto.password, user.password_hash);
+
+		if (!equalPassword) {
+			response = { message: "Usuário ou senha incorreta!" };
+		} else {
+			response = generatePairToken(user);
+		}
 	}
 
-	const equalPassword = await compare(dto.password, user.password_hash);
+	const elapsed = Date.now() - startTime;
 
-	if (!equalPassword) {
-		return { message: "Usuário ou senha incorreta!" };
+	if (elapsed < MIN_LOGIN_TIME_MS) {
+		await wait(MIN_LOGIN_TIME_MS - elapsed);
 	}
 
-	return generatePairToken(user);
+	return response;
 }
 
 async function refreshToken(token) {

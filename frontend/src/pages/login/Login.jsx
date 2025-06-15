@@ -11,6 +11,7 @@ import { Logo } from "./Logo"
 import { useUserSessionContext } from "../../context/UserSession"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import DetroitLoading from '../../components/Loading/DetroitLoading'
 
 const StyledForm = styled.form`
 	border-bottom: 1px solid;
@@ -19,18 +20,32 @@ const StyledForm = styled.form`
 `
 
 const Login = () => {
-	const [email, setEmail] = useState("")
-	const [password, setPassword] = useState("")
+	const [email, setEmail] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [password, setPassword] = useState("");
 
 	const { login } = useUserSessionContext()
 	const navigate = useNavigate()
 
 	const handleLogin = async(event) => {
-		event.preventDefault()
+		event.preventDefault();
+
+		setLoading(true);
 
 		login(email, password)
 			.then(() => navigate("/dashboard/profile"))
-			.catch(() =>toast.error("Login failed. Please check your credentials."))
+			.catch(() => toast.error("Login failed. Please check your credentials."))
+			.finally(() => setLoading(false))
+	}
+
+	if (loading) {
+		return (
+			<Container>
+				<Row justify="center">
+					<DetroitLoading />
+				</Row>
+			</Container>
+		);
 	}
 
 	return (
