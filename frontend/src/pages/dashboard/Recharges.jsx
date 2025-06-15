@@ -19,6 +19,16 @@ const mapping = [
 		}
 	},
 	{
+		field: "user_id",
+		title: "Usuário",
+		component: Zoom,
+		props: {
+			route: "dashboard/users",
+			primaryKey: "id",
+			valueField: "name"
+		}
+	},
+	{
 		field: "plan.name",
 		title: "Plano"
 	},
@@ -29,10 +39,6 @@ const mapping = [
 	{
 		field: "status",
 		title: "Status"
-	},
-	{
-		field: "user_id",
-		title: "Usuário"
 	},
 	{
 		field: "user.name",
@@ -60,7 +66,7 @@ const actions = {
 	UPDATE: {
 		method: "PATCH",
 		route: "dashboard/recharges",
-		fields: ["plan_id", "smart_card_number", "status", "user.name"]
+		fields: ["plan_id", "user_id", "smart_card_number", "status"]
 	},
 	DELETE: {
 		method: "DELETE",

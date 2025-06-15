@@ -45,28 +45,22 @@ const Actions = styled.div`
 	gap: 10px;
 `;
 
-
-const ConfirmModal = ({ isOpen, onClose, onConfirm, selectedItems, data, setAlertMessage }) => {
-	if (!isOpen) return null;
-
-	return (
-		<Backdrop>
-			<ModalContainer>
-				<Title>Tem certeza que deseja excluir os seguintes registros?</Title>
-				<ItemList>
-					{selectedItems.map((id) => {
-						const fullItemInfo = data.find(item => item.id === id);
-
-						return <Item key={id}>{setAlertMessage(fullItemInfo)}</Item>;
-					})}
-				</ItemList>
-				<Actions>
-					<Button onClick={onClose}>Cancelar</Button>
-					<Button variant="danger" onClick={onConfirm}>Excluir</Button>
-				</Actions>
-			</ModalContainer>
-		</Backdrop>
-	);
-};
+const ConfirmModal = ({ isOpen, onClose, onConfirm, selectedItems, data, setAlertMessage }) => isOpen ? (
+	<Backdrop>
+		<ModalContainer>
+			<Title>Tem certeza que deseja excluir os seguintes registros?</Title>
+			<ItemList>
+				{ selectedItems.map((id) => {
+					const fullItemInfo = data.find(item => item.id === id);
+					return <Item key={id}>{setAlertMessage(fullItemInfo)}</Item>;
+				}) }
+			</ItemList>
+			<Actions>
+				<Button onClick={onClose}>Cancelar</Button>
+				<Button variant="danger" onClick={onConfirm}>Excluir</Button>
+			</Actions>
+		</ModalContainer>
+	</Backdrop>
+) : null;
 
 export default ConfirmModal;

@@ -30,9 +30,19 @@ const LoadingWrapper = styled.div`
 	font-weight: 500;
 `;
 
+const TableBodyRowWrapper = styled(TableBodyRow)`
+	&:hover .action-buttons {
+		opacity: 1;
+		visibility: visible;
+	}
+`;
+
 const ActionButtonsWrapper = styled.div`
 	display: flex;
 	gap: 8px;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s ease;
 `;
 
 const ActionCell = styled(TableBodyCell)`
@@ -62,6 +72,8 @@ const TableContainer = ({
 	const filterFields = actions.READ.fields;
 	const filterMapping = filterFields ? filteredMapping(mapping, filterFields) : mapping;
 
+	const handleRowClick = (id) => toggleSelection(id, { exclusive: true });
+
 	if (loading) {
 		return <LoadingWrapper>Carregando...</LoadingWrapper>;
 	}
@@ -81,10 +93,11 @@ const TableContainer = ({
 					</TableHead>
 					<TableBody>
 						{data.map((item) => (
-							<TableBodyRow
+							<TableBodyRowWrapper
 								key={item.id}
 								hoverable
 								selected={selectedItems.includes(item.id)}
+								onClick={() => handleRowClick(item.id)}
 							>
 								{ selectionType === "multi" && (
 									<TableHeaderCell key={`selection_multi_${item.id}`} >
@@ -92,6 +105,7 @@ const TableContainer = ({
 											type="checkbox"
 											checked={selectedItems.includes(item.id)}
 											onChange={() => toggleSelection(item.id)}
+											onClick={(e) => e.stopPropagation()}
 											aria-label={`Selecionar item ${item.id}`}
 										/>
 									</TableHeaderCell>
@@ -102,12 +116,12 @@ const TableContainer = ({
 									</TableBodyCell>
 								)) }
 								<ActionCell key={`actions_${item.id}`}>
-									<ActionButtonsWrapper>
+									<ActionButtonsWrapper className="action-buttons">
 										<Button size="small" variant="primary" onClick={() => handleUpdate(item.id)}>Editar</Button>
 										<Button size="small" variant="danger" onClick={() => handleDelete(item.id)}>Excluir</Button>
 									</ActionButtonsWrapper>
 								</ActionCell>
-							</TableBodyRow>
+							</TableBodyRowWrapper>
 						))}
 					</TableBody>
 				</Table>

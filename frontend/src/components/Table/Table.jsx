@@ -48,12 +48,13 @@ const Table = ({ actions, mapping, selectionType }) => {
 			onSuccess: () => {
 				toast.success("Registro criado com sucesso!");
 				setIsCreateOpen(false);
+				handleSearch();
 			},
 			onCancel: error => {
 				console.error(error);
 				toast.error("Erro ao criar registro.");
 			}
-		}), [actions]
+		}), [actions, handleSearch]
 	);
 
 	const handleUpdateModal = useCallback(
@@ -71,12 +72,13 @@ const Table = ({ actions, mapping, selectionType }) => {
 			onSuccess: () => {
 				toast.success("Registro atualizado com sucesso!");
 				setIsUpdateOpen(false);
+				handleSearch();
 			},
 			onCancel: error => {
 				console.error(error);
 				toast.error("Erro ao atualizar registro.");
 			}
-		}), [actions, selectedItems]
+		}), [actions, selectedItems, handleSearch]
 	);
 
 	const handleDeleteClick = useCallback(
@@ -85,6 +87,7 @@ const Table = ({ actions, mapping, selectionType }) => {
 			setIsConfirmOpen(true)
 		}, []
 	);
+	const handleDeleteModal = useCallback(() => setIsConfirmOpen(true), []);
 	const handleCloseDeleteClick = useCallback(() => setIsConfirmOpen(false), []);
 	const confirmDelete = useCallback(
 		() => deleteData({
@@ -94,21 +97,26 @@ const Table = ({ actions, mapping, selectionType }) => {
 				toast.success("Registros excluídos com sucesso!");
 				setSelectedItems([]);
 				handleCloseDeleteClick();
+				handleSearch();
 			},
 			onCancel: error => {
 				toast.error("Erro ao deletar registros.");
 				console.error(error);
 				handleCloseDeleteClick();
 			}
-		}), [actions, selectedItems, handleCloseDeleteClick]
+		}), [actions, selectedItems, handleCloseDeleteClick, handleSearch]
 	);
 
 	const toggleSelection = useCallback(
-		(id) => setSelectedItems((prevSelected) =>
-			prevSelected.includes(id)
-				? prevSelected.filter(itemId => itemId !== id)
-				: [...prevSelected, id]
-		), []
+		(id, { exclusive = false } = {}) => {
+			if (exclusive) {
+				setSelectedItems([id]);
+			} else {
+				setSelectedItems((prev) =>
+					prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+				);
+			}
+		}, []
 	);
 
 	const handlePaginationPrevious = useCallback(
@@ -132,7 +140,7 @@ const Table = ({ actions, mapping, selectionType }) => {
 				setSearch={setSearch}
 				setLimit={setLimit}
 				handleCreate={handleCreateModal}
-				handleDelete={handleDeleteClick}
+				handleDelete={handleDeleteModal}
 				handleSearch={handleSearch}
 				actions={actions}
 				enabledBulkActions={Boolean(selectedItems.length)}
