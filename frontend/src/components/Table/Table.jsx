@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Toolbar from "./Toolbar/Toolbar";
-import { createData, deleteData, updateData } from "./helpers/actionsHelper";
+import { createData, deleteData, fetchData, updateData } from "./helpers/actionsHelper";
 import CreateModal from "../Modal/CreateModal";
 import { toast } from "react-toastify";
 import ConfirmModal from "../Modal/ConfirmModal";
@@ -10,17 +10,37 @@ const Table = ({ actions, mapping, selectionType }) => {
 	const [data, setData] = useState([]);
 	const [selectedItems, setSelectedItems] = useState([]);
 	const [search, setSearch] = useState("");
+	const [loading, setLoading] = useState(true);
+	const [totalPages, setTotalPages] = useState(1);
+	const [currentPage, setCurrentPage] = useState(1);
 	const [limit, setLimit] = useState(10);
-	const [fetchTrigger, setFetchTrigger] = useState(0);
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [isUpdateOpen, setIsUpdateOpen] = useState(false);
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-	const refresh = useCallback(() => setFetchTrigger(prev => prev + 1), []);
+	const handleSearch = useCallback(() => {
+		setLoading(true);
+	
+		fetchData({
+			actions,
+			limit,
+			currentPage,
+			search,
+			onSuccess: ({ data }) => {
+				setData(data.data);
+				setTotalPages(Math.max(1, Math.ceil(data.total / limit)));
+				setLoading(false);
+			},
+			onCancel: error => {
+				console.error(error);
+				toast.error("Erro ao carregar registros.");
+				setLoading(false);
+			}
+		});
+	}, [actions, limit, currentPage, search, setData]);
 
 	const handleCreateModal = useCallback(() => setIsCreateOpen(true), []);
 	const handleCloseCreateModal = useCallback(() => setIsCreateOpen(false), []);
-
 	const handleCreate = useCallback(
 		(formData) => createData({
 			formData,
@@ -28,13 +48,12 @@ const Table = ({ actions, mapping, selectionType }) => {
 			onSuccess: () => {
 				toast.success("Registro criado com sucesso!");
 				setIsCreateOpen(false);
-				refresh();
 			},
 			onCancel: error => {
 				console.error(error);
 				toast.error("Erro ao criar registro.");
 			}
-		}), [actions, refresh]
+		}), [actions]
 	);
 
 	const handleUpdateModal = useCallback(
@@ -43,9 +62,7 @@ const Table = ({ actions, mapping, selectionType }) => {
 			setIsUpdateOpen(true)
 		}, []
 	);
-
 	const handleCloseUpdateModal = useCallback(() => setIsUpdateOpen(false), []);
-
 	const handleUpdate = useCallback(
 		(formData) => updateData({
 			id: selectedItems[0],
@@ -54,13 +71,12 @@ const Table = ({ actions, mapping, selectionType }) => {
 			onSuccess: () => {
 				toast.success("Registro atualizado com sucesso!");
 				setIsUpdateOpen(false);
-				refresh();
 			},
 			onCancel: error => {
 				console.error(error);
 				toast.error("Erro ao atualizar registro.");
 			}
-		}), [actions, selectedItems, refresh]
+		}), [actions, selectedItems]
 	);
 
 	const handleDeleteClick = useCallback(
@@ -69,9 +85,7 @@ const Table = ({ actions, mapping, selectionType }) => {
 			setIsConfirmOpen(true)
 		}, []
 	);
-
 	const handleCloseDeleteClick = useCallback(() => setIsConfirmOpen(false), []);
-
 	const confirmDelete = useCallback(
 		() => deleteData({
 			selectedItems,
@@ -80,14 +94,13 @@ const Table = ({ actions, mapping, selectionType }) => {
 				toast.success("Registros excluídos com sucesso!");
 				setSelectedItems([]);
 				handleCloseDeleteClick();
-				refresh();
 			},
 			onCancel: error => {
 				toast.error("Erro ao deletar registros.");
 				console.error(error);
 				handleCloseDeleteClick();
 			}
-		}), [actions, selectedItems, refresh, handleCloseDeleteClick]
+		}), [actions, selectedItems, handleCloseDeleteClick]
 	);
 
 	const toggleSelection = useCallback(
@@ -98,31 +111,49 @@ const Table = ({ actions, mapping, selectionType }) => {
 		), []
 	);
 
+	const handlePaginationPrevious = useCallback(
+		() => {
+			setCurrentPage(currentPage - 1);
+		}, [currentPage]
+	);
+
+	const handlePaginationNext = useCallback(
+		() => {
+			setCurrentPage(currentPage + 1);
+		}, [currentPage]
+	);
+
+	useEffect(() => handleSearch(), [currentPage]);
+
 	return (
 		<>
 			<Toolbar
 				search={search}
 				setSearch={setSearch}
 				setLimit={setLimit}
-				setFetchTrigger={setFetchTrigger}
-				onCreateClick={handleCreateModal}
+				handleCreate={handleCreateModal}
 				handleDelete={handleDeleteClick}
+				handleSearch={handleSearch}
 				actions={actions}
 				enabledBulkActions={Boolean(selectedItems.length)}
 			/>
 			<TableContainer
 				data={data}
-				setData={setData}
-				selectionType={selectionType}
+				selectedItems={selectedItems}
+				loading={loading}
 				search={search}
+				currentPage={currentPage}
+				totalPages={totalPages}
+				selectionType={selectionType}
 				actions={actions}
 				mapping={mapping}
-				fetchTrigger={fetchTrigger}
-				limit={limit}
+				setData={setData}
+				handlePaginationPrevious={handlePaginationPrevious}
+				handlePaginationNext={handlePaginationNext}
 				toggleSelection={toggleSelection}
 				handleDelete={handleDeleteClick}
 				handleUpdate={handleUpdateModal}
-				selectedItems={selectedItems}
+				handleSearch={handleSearch}
 			/>
 			{actions.CREATE && (
 				<CreateModal
@@ -136,23 +167,23 @@ const Table = ({ actions, mapping, selectionType }) => {
 			)}
 			{actions.UPDATE && (
 				<CreateModal
+					data={data}
 					title="Dados do registro"
 					isOpen={isUpdateOpen}
 					onClose={handleCloseUpdateModal}
 					onSubmit={handleUpdate}
 					mapping={mapping}
 					selectedItems={selectedItems}
-					data={data}
 					fields={actions.UPDATE.fields}
 				/>
 			)}
 			{actions.DELETE && (
 				<ConfirmModal
+					data={data}
 					isOpen={isConfirmOpen}
 					onClose={handleCloseDeleteClick}
 					onConfirm={confirmDelete}
 					selectedItems={selectedItems}
-					data={data}
 					setAlertMessage={actions.DELETE.setAlertMessage}
 				/>
 			)}

@@ -12,17 +12,14 @@ const PaginationWrapper = styled.div`
 	align-items: center;
 `;
 
-const Pagination = ({ currentPage, totalPages, setCurrentPage }) => {
-	const handlePrevious = useCallback(() => (currentPage > 1) && setCurrentPage(prev => prev - 1), [currentPage, setCurrentPage]);
-	const handleNext = useCallback(() => (currentPage < totalPages) && setCurrentPage(prev => prev + 1), [currentPage, totalPages, setCurrentPage]);
-	
+const Pagination = ({ handlePaginationPrevious, handlePaginationNext, currentPage, totalPages }) => {
 	return (
 		<PaginationWrapper>
 			<span>Página {currentPage} de {totalPages}</span>
-			<Button onClick={handlePrevious} disabled={currentPage === 1} size="small">
+			<Button onClick={handlePaginationPrevious} disabled={currentPage === 1} size="small">
 				Anterior
 			</Button>
-			<Button onClick={handleNext} disabled={currentPage === totalPages} size="small">
+			<Button onClick={handlePaginationNext} disabled={currentPage === totalPages} size="small">
 				Próximo
 			</Button>
 		</PaginationWrapper>

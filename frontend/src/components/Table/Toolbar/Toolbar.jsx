@@ -3,8 +3,8 @@ import { Input } from "../../Input/Input"
 import { Button } from "../../Button/Button"
 import Select from "../../Select/Select"
 
-const Toolbar = ({ setLimit, search, setFetchTrigger, setSearch, onCreateClick, actions, enabledBulkActions, handleDelete }) => {
-	const handleSearch = useCallback(() => setFetchTrigger(prev => prev + 1), [setFetchTrigger]);
+const Toolbar = ({ setLimit, search, handleSearch, setSearch, handleCreate, actions, enabledBulkActions, handleDelete }) => {
+
 
 	return (
 		<div style={{ display: "flex", margin: "20px 0", justifyContent: "space-between" }}>
@@ -16,7 +16,7 @@ const Toolbar = ({ setLimit, search, setFetchTrigger, setSearch, onCreateClick, 
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 				<Button variant={"primary"} onClick={handleSearch}>Pesquisar</Button>
-				{ actions.CREATE && <Button variant={"primary"} onClick={onCreateClick}>Criar</Button> }
+				{ actions.CREATE && <Button variant={"primary"} onClick={handleCreate}>Criar</Button> }
 				{ actions.DELETE && <Button variant={"danger"} disabled={!enabledBulkActions} onClick={handleDelete}>Deletar</Button> }
 			</div>
 			<div>

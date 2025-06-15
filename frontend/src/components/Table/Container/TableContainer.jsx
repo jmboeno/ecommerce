@@ -41,54 +41,26 @@ const ActionCell = styled(TableBodyCell)`
 `;
 
 const TableContainer = ({
-	fetchTrigger,
-	search,
+	data,
+	loading,
 	actions,
 	mapping,
-	limit,
+	currentPage,
+	totalPages,
 	selectionType,
 	selectedItems,
 	toggleSelection,
-	data,
-	setData,
 	handleDelete,
-	handleUpdate
+	handleUpdate,
+	handlePaginationPrevious,
+	handlePaginationNext
 }) => {
-	const [loading, setLoading] = useState(true);
-	const [currentPage, setCurrentPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
-
 	if (!actions?.READ) {
 		throw new Error("A ação READ é obrigatória");
 	}
 
 	const filterFields = actions.READ.fields;
 	const filterMapping = filterFields ? filteredMapping(mapping, filterFields) : mapping;
-
-	const handleSearch = useCallback(() => {
-		setLoading(true);
-
-		fetchData({
-			actions,
-			limit,
-			currentPage,
-			search,
-			onSuccess: ({ data }) => {
-				setData(data.data);
-				setTotalPages(Math.max(1, Math.ceil(data.total / limit)));
-				setLoading(false);
-			},
-			onCancel: error => {
-				console.error(error);
-				toast.error("Erro ao carregar registros.");
-				setLoading(false);
-			}
-		});
-	}, [actions, limit, currentPage, search, setData]);
-
-	useEffect(() => {
-		handleSearch();
-	}, [currentPage, fetchTrigger, handleSearch]);
 
 	if (loading) {
 		return <LoadingWrapper>Carregando...</LoadingWrapper>;
@@ -140,13 +112,12 @@ const TableContainer = ({
 					</TableBody>
 				</Table>
 			</TableWrapper>
-			{totalPages > 1 && (
-				<Pagination
-					currentPage={currentPage}
-					totalPages={totalPages}
-					setCurrentPage={setCurrentPage}
-				/>
-			)}
+			<Pagination
+				currentPage={currentPage}
+				totalPages={totalPages}
+				handlePaginationPrevious={handlePaginationPrevious}
+				handlePaginationNext={handlePaginationNext}
+			/>
 		</>
 	);
 };
