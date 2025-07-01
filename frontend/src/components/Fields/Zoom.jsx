@@ -125,6 +125,8 @@ const Zoom = ({
 		onChange && onChange(event.target.value);
 	}, [onChange]);
 
+	console.log(value);
+
 	return (
 		<ZoomSelect
 			id={primaryKey}

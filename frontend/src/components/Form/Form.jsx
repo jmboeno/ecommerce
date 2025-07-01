@@ -48,8 +48,9 @@ const Form = ({
 		? mapping.filter((item) => fields.includes(item.field))
 		: mapping;
 
-	const handleChange = (field) => (e) => {
-		setFormData((prev) => ({ ...prev, [field]: e.target?.value || e}));
+	const handleChange = (field) => (value) => {
+		debugger;
+		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const handleSubmit = (e) => {

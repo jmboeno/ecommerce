@@ -1,19 +1,19 @@
 import React from "react";
 
-export const getFieldValueByType = (value, { type, listField }) => {
-	if (!type) return value
+export const getFieldValueByType = (value, type) => {
+	if (!value || !value.length) return <i>Não preenchido</i>;
 
-	if (type === "date") return new Date(value).toLocaleString().split(",").join(" -")
+	if (!type) return value;
 
-	if (type === "boolean") return value ? "Sim" : "Não"
+	if (type === "list") return value.length > 1 ? value.concat(", ") : value[0];
 
-	if (type === "list") {
-		return value?.length && listField
-			? value.map(item => item[listField]).join(", ")
-			: <i>Não preenchido</i>
-	}
+	if (type === "date") return new Date(value).toLocaleString().split(",").join(" -");
 
-	return value
+	if (type === "boolean") return value ? "Sim" : "Não";
+
+	if (type === "money") return `R$ ${value.replace(".", ",")}`;
+
+	return value;
 }
 
 export const filteredMapping = (mapping, fields) => mapping.filter(({field}) => fields.includes(field));

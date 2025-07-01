@@ -65,6 +65,8 @@ const TableContainer = ({
 	handlePaginationPrevious,
 	handlePaginationNext
 }) => {
+	const hasInlineActions = actions.UPDATE || actions.DELETE;
+
 	if (!actions?.READ) {
 		throw new Error("A ação READ é obrigatória");
 	}
@@ -88,7 +90,7 @@ const TableContainer = ({
 							{filterMapping.map(({ title }) => (
 								<TableHeaderCell key={title}>{title}</TableHeaderCell>
 							))}
-							<TableHeaderCell key={"actions"}>Ações</TableHeaderCell>
+							{ hasInlineActions ? <TableHeaderCell key={"actions"}>Ações</TableHeaderCell> : null }
 						</TableHeaderRow>
 					</TableHead>
 					<TableBody>
@@ -110,17 +112,19 @@ const TableContainer = ({
 										/>
 									</TableHeaderCell>
 								) }
-								{ filterMapping.map(({ field, ...otherProps }) => (
+								{ filterMapping.map(({ field, type }) => (
 									<TableBodyCell key={`${item.id}_${field}`}>
-										{ getFieldValueByType(item[field], otherProps) }
+										{ getFieldValueByType(item[field], type) }
 									</TableBodyCell>
 								)) }
-								<ActionCell key={`actions_${item.id}`}>
-									<ActionButtonsWrapper className="action-buttons">
-										<Button size="small" variant="primary" onClick={() => handleUpdate(item.id)}>Editar</Button>
-										<Button size="small" variant="danger" onClick={() => handleDelete(item.id)}>Excluir</Button>
-									</ActionButtonsWrapper>
-								</ActionCell>
+								{ hasInlineActions ? (
+									<ActionCell key={`actions_${item.id}`}>
+										<ActionButtonsWrapper className="action-buttons">
+											{ actions.UPDATE ? <Button size="small" variant="primary" onClick={() => handleUpdate(item.id)}>Editar</Button> : null }
+											{ actions.DELETE ? <Button size="small" variant="danger" onClick={() => handleDelete(item.id)}>Excluir</Button> : null }
+										</ActionButtonsWrapper>
+									</ActionCell>
+								) : null }
 							</TableBodyRowWrapper>
 						))}
 					</TableBody>

@@ -20,13 +20,13 @@ async function getAllUsers({ limit, offset, search, orderBy = "id", orderDirecti
 			{
 				model: Role,
 				as: "user_roles",
-				attributes: ["id", "name", "description"],
+				attributes: ["id", "name"],
 				through: { attributes: [] }
 			},
 			{
 				model: Permission,
 				as: "user_permissions",
-				attributes: ["id", "name", "description"],
+				attributes: ["id", "name"],
 				through: { attributes: [] }
 			}
 		],
@@ -35,9 +35,30 @@ async function getAllUsers({ limit, offset, search, orderBy = "id", orderDirecti
 		order: [[orderBy, orderDirection]]
 	});
 
+	// Transformar os dados
+	const transformedData = rows.map(user => {
+		const userData = user.toJSON();
+
+		const user_roles_ids = userData.user_roles.map(role => role.id);
+		const user_roles_names = userData.user_roles.map(role => role.name);
+
+		const user_permissions_ids = userData.user_permissions.map(permission => permission.id);
+		const user_permissions_names = userData.user_permissions.map(permission => permission.name);
+
+		return {
+			...userData,
+			user_roles_ids,
+			user_roles_names,
+			user_permissions_ids,
+			user_permissions_names,
+			user_roles: undefined,
+			user_permissions: undefined
+		};
+	});
+
 	return {
 		total: count,
-		data: rows
+		data: transformedData
 	};
 }
 
@@ -113,14 +134,41 @@ async function insertUser(dto) {
 	}
 }
 
-async function updateUser(updateInfo, id) {
-	const updatedList = await User.update(updateInfo, { where: { id } });
+async function updateUser(payload, id) {
+	try {
+		const user = await User.findByPk(id);
 
-	if (updatedList[0] === 0) {
-		return { message: "Registro não atualizado!" };
+		if (!user) {
+			return { message: "Usuário não encontrado." };
+		}
+
+		const {
+			user_roles,
+			user_permissions,
+			...userFields
+		} = payload;
+
+		await user.update(userFields);
+
+		if (user_roles) {
+			const roleIds = Array.isArray(user_roles)
+				? user_roles
+				: [user_roles];
+			await user.setUser_roles(roleIds);
+		}
+
+		if (user_permissions) {
+			const permissionIds = Array.isArray(user_permissions)
+				? user_permissions
+				: [user_permissions];
+			await user.setUser_permissions(permissionIds);
+		}
+
+		return { message: "Usuário atualizado com sucesso!" };
+	} catch (error) {
+		console.error("Erro ao atualizar usuário:", error);
+		return { message: "Erro ao atualizar usuário." };
 	}
-
-	return { message: "Registro atualizado!" };
 }
 
 async function deleteUserById(id) {
