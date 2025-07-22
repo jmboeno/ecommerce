@@ -8,19 +8,28 @@ import DashboardPage from '../components/pages/DashboardPage/DashboardPage.jsx';
 
 // A simple PrivateRoute component to protect routes
 const PrivateRoute = ({ children }) => {
-	const { isAuthenticated, isAuthCheckDone } = useContext(AuthContext);
-
-	if (!isAuthCheckDone) {
-		return null; // ou um loading spinner
-	}
+	const { isAuthenticated } = useContext(AuthContext);
 
 	return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 const AppRoutes = () => {
+	const { isAuthenticated, isAuthCheckDone } = useContext(AuthContext); // Obter o estado de autenticação
+
 	return (
 		<Routes>
-			<Route path="/login" element={<LoginPage />} />
+			<Route
+				path="/login"
+				element={
+					// Se a verificação de autenticação estiver concluída E o usuário estiver autenticado,
+					// redirecionar para o dashboard. Caso contrário, mostrar a página de login.
+					isAuthCheckDone && isAuthenticated ? (
+						<Navigate to="/dashboard" replace />
+					) : (
+						<LoginPage />
+					)
+				}
+			/>
 			<Route path="/register" element={<RegisterPage />} />
 			<Route
 				path="/dashboard/*" // Use /* for nested routes in the dashboard
@@ -30,8 +39,29 @@ const AppRoutes = () => {
 					</PrivateRoute>
 				}
 			/>
-			<Route path="/" element={<Navigate to="/login" replace />} /> {/* Default redirect */}
-			<Route path="*" element={<Navigate to="/login" replace />} /> {/* Catch-all for undefined routes */}
+			{/* Redirecionamento padrão: se não houver rota específica e o usuário estiver autenticado,
+				vá para o dashboard. Caso contrário, vá para o login. */}
+			<Route
+				path="/"
+				element={
+					isAuthCheckDone && isAuthenticated ? (
+						<Navigate to="/dashboard" replace />
+					) : (
+						<Navigate to="/login" replace />
+					)
+				}
+			/>
+			{/* Catch-all para rotas indefinidas: mesma lógica do redirecionamento padrão */}
+			<Route
+				path="*"
+				element={
+					isAuthCheckDone && isAuthenticated ? (
+						<Navigate to="/dashboard" replace />
+					) : (
+						<Navigate to="/login" replace />
+					)
+				}
+			/>
 		</Routes>
 	);
 };
