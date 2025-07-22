@@ -56,12 +56,16 @@
 .sidebar-link:hover {
 	background-color: var(--gray-bg);
 	color: var(--primary-purple);
+	text-decoration: none;
 }
 
 .sidebar-link.active {
 	background-color: var(--primary-purple);
-	color: white;
 	font-weight: 600;
+}
+
+.sidebar-link.active .text {
+	color: white;
 }
 
 .sidebar-link.active .icon {

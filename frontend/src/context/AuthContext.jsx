@@ -68,12 +68,11 @@ export const AuthProvider = ({ children }) => {
 				if (response.success) {
 					localStorage.setItem("token", response.accessToken);
 					localStorage.setItem("refreshToken", response.refreshToken);
-					localStorage.setItem("user", JSON.stringify(response.user));
-					setUser(response.user);
 					setIsAuthenticated(true);
+					setUser(JSON.parse(localStorage.getItem("user")));
 					toast.success(response.message || "Sessão renovada com sucesso!");
 					console.log("AuthContext: Refresh bem-sucedido. Sessão revalidada.");
-					return { success: true, accessToken: response.accessToken, refreshToken: response.refreshToken, user: response.user };
+					return { success: true, accessToken: response.accessToken, refreshToken: response.refreshToken  };
 				} else {
 					console.log("AuthContext: authServiceRefreshToken falhou. Mensagem:", response.message);
 					await logout(); // Desloga se o refresh falhar

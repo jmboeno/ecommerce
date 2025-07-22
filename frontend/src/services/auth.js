@@ -77,8 +77,7 @@ export const refreshToken = async (refreshTokenString) => {
 			return {
 				success: true,
 				accessToken: response.data.accessToken,
-				refreshToken: response.data.refreshToken,
-				user: response.data.user // <--- Certifique-se que o backend retorna o objeto 'user'
+				refreshToken: response.data.refreshToken
 			};
 		} else {
 			throw new Error("Invalid response from refresh endpoint.");

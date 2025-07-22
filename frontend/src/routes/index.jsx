@@ -24,7 +24,7 @@ const AppRoutes = () => {
 					// Se a verificação de autenticação estiver concluída E o usuário estiver autenticado,
 					// redirecionar para o dashboard. Caso contrário, mostrar a página de login.
 					isAuthCheckDone && isAuthenticated ? (
-						<Navigate to="/dashboard" replace />
+						<Navigate to="/dashboard/overview" replace />
 					) : (
 						<LoginPage />
 					)
@@ -45,7 +45,7 @@ const AppRoutes = () => {
 				path="/"
 				element={
 					isAuthCheckDone && isAuthenticated ? (
-						<Navigate to="/dashboard" replace />
+						<Navigate to="/dashboard/overview" replace />
 					) : (
 						<Navigate to="/login" replace />
 					)
@@ -56,7 +56,7 @@ const AppRoutes = () => {
 				path="*"
 				element={
 					isAuthCheckDone && isAuthenticated ? (
-						<Navigate to="/dashboard" replace />
+						<Navigate to="/dashboard/overview" replace />
 					) : (
 						<Navigate to="/login" replace />
 					)
