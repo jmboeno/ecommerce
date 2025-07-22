@@ -1,10 +1,8 @@
-const { User, RefreshToken } = require("../models");
-const { compare, hash } = require("bcrypt");
+const { User, RefreshToken, BlacklistedToken } = require("../models");
 const { sign, verify, decode } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
 const { insertAcl } = require("./securityService");
-const { insertUser } = require("./usersService");
-const { Op } = require('sequelize'); // Para usar operadores do Sequelize como Op.gt
+const { Op } = require('sequelize');
 
 const MIN_LOGIN_TIME_MS = 2000;
 const CUSTOMER_ROLE_ID = "48cc1519-d135-47af-83a7-5d7d48635b82";
@@ -222,26 +220,28 @@ async function activateUserByToken(token) {
 	}
 }
 
-// --- Função de logout ---
 async function logoutService(token) {
 	try {
 		const decodedToken = decode(token);
 		if (!decodedToken || !decodedToken.id) {
 			return { success: false, message: "Token inválido para logout." };
 		}
+
 		const user_id = decodedToken.id;
 
-		// Revoga todos os refresh tokens ativos para o usuário (mais seguro)
-		// REMOVIDO 'expired: true'
+		// Adiciona accessToken na blacklist
+		await BlacklistedToken.create({
+			token,
+			user_id,
+			expires_at: new Date(decodedToken.exp * 1000) // JWT expiration
+		});
+
+		// Revoga todos os refresh tokens do usuário
 		await RefreshToken.update(
-			{ is_revoked: true }, // <--- Corrigido para 'is_revoked: true' apenas
-			{
-				where: {
-					user_id: user_id,
-					is_revoked: false
-				}
-			}
+			{ is_revoked: true },
+			{ where: { user_id, is_revoked: false } }
 		);
+
 		return { success: true, message: "Sessão encerrada com sucesso." };
 	} catch (error) {
 		console.error("Erro no logoutService:", error);

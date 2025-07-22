@@ -140,6 +140,7 @@ export const AuthProvider = ({ children }) => {
 				setIsAuthenticated(true);
 				toast.success(response.message);
 				console.log("AuthContext: Login bem-sucedido.");
+				navigate('/dashboard/overview');
 				return { success: true };
 			} else {
 				toast.error(response.message);
@@ -154,7 +155,7 @@ export const AuthProvider = ({ children }) => {
 			stopLoading();
 			console.log("AuthContext: stopLoading disparado no login.");
 		}
-	}, [startLoading, stopLoading]); // Dependências do useCallback: startLoading, stopLoading.
+	}, [startLoading, stopLoading, navigate]); // Dependências do useCallback: startLoading, stopLoading.
 
 	// 5. Define "register" e "activate"
 	const register = useCallback(async (userData) => {

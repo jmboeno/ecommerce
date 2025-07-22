@@ -79,7 +79,7 @@ async function activateUser(req, res) {
 	return res.status(400).json({ message: error });
 }
 
-async function logout(req, res) {
+async function logoutUser(req, res) {
 	const authHeader = req.headers.authorization;
 
 	if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -102,5 +102,5 @@ module.exports = {
 	getRefresh,
 	postUser,
 	activateUser,
-	logout
+	logoutUser
 };
