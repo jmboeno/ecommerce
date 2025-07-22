@@ -6,10 +6,14 @@ const { roles } = require("../middleware/roles");
 const router = Router();
 
 router.use(authenticated);
-router.get("/", roles(["Gerente"]), getUsers);
-router.get("/:id", roles(["Gerente"]), getUser);
-router.post("/", roles(["Gerente"]), postUser);
-router.patch("/:id", roles(["Gerente"]), patchUser);
-router.delete("/:id", roles(["Gerente"]), deleteUser);
+
+router.route("/")
+	.get(roles(["Administrador"]), getUsers)
+	.post(roles(["Administrador"]), postUser);
+
+router.route("/:id")
+	.get(roles(["Administrador"]), getUser)
+	.patch(roles(["Administrador"]), patchUser)
+	.delete(roles(["Administrador"]), deleteUser);
 
 module.exports = router;

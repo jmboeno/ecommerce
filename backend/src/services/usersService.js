@@ -2,183 +2,195 @@ const { Op } = require("sequelize");
 const { User, Role, Permission } = require("../models");
 const { hash } = require("bcryptjs");
 
+const ALLOWED_FIELDS = ["id", "name", "email", "phone", "active", "user_roles", "user_permissions"];
+
 async function getAllUsers({ limit, offset, search, orderBy = "id", orderDirection = "ASC" }) {
-	const whereUser = search
-		? {
-			name: {
-				[Op.iLike]: `%${search}%`
+	try {
+		const whereUser = search
+			? {
+				name: {
+					[Op.iLike]: `%${search}%`
+				}
 			}
-		}
-		: {};
+			: {};
 
-	const { count, rows } = await User.findAndCountAll({
-		where: whereUser,
-		attributes: {
-			exclude: ["password_hash"]
-		},
-		include: [
-			{
-				model: Role,
-				as: "user_roles",
-				attributes: ["id", "name"],
-				through: { attributes: [] }
+		const { count, rows } = await User.findAndCountAll({
+			where: whereUser,
+			attributes: {
+				exclude: ["password_hash"]
 			},
-			{
-				model: Permission,
-				as: "user_permissions",
-				attributes: ["id", "name"],
-				through: { attributes: [] }
-			}
-		],
-		limit,
-		offset,
-		order: [[orderBy, orderDirection]]
-	});
-
-	// Transformar os dados
-	const transformedData = rows.map(user => {
-		const userData = user.toJSON();
-
-		const user_roles_ids = userData.user_roles.map(role => role.id);
-		const user_roles_names = userData.user_roles.map(role => role.name);
-
-		const user_permissions_ids = userData.user_permissions.map(permission => permission.id);
-		const user_permissions_names = userData.user_permissions.map(permission => permission.name);
-
-		return {
-			...userData,
-			user_roles_ids,
-			user_roles_names,
-			user_permissions_ids,
-			user_permissions_names,
-			user_roles: undefined,
-			user_permissions: undefined
-		};
-	});
-
-	return {
-		total: count,
-		data: transformedData
-	};
-}
-
-async function getUserById(id, fields = null) {
-	const baseAttributes = [];
-	const includes = [];
-
-	if (!fields) {
-		return await User.findByPk(id, {
 			include: [
 				{
 					model: Role,
 					as: "user_roles",
-					attributes: ["id", "name", "description"],
+					attributes: ["id", "name"],
 					through: { attributes: [] }
 				},
 				{
 					model: Permission,
 					as: "user_permissions",
-					attributes: ["id", "name", "description"],
+					attributes: ["id", "name"],
 					through: { attributes: [] }
 				}
-			]
+			],
+			limit,
+			offset,
+			order: [[orderBy, orderDirection]]
 		});
-	}
 
-	for (const field of fields) {
-		if (field === "user_roles") {
-			includes.push({
-				model: Role,
-				as: "user_roles",
-				attributes: ["id", "name", "description"],
-				through: { attributes: [] }
+		const transformedData = rows.map(user => {
+			const userData = user.toJSON();
+
+			const firstRole = userData.user_roles[0] || {};
+			const firstPermission = userData.user_permissions[0] || {};
+
+			return {
+				...userData,
+				user_roles_id: firstRole.id || null,
+				user_roles_name: firstRole.name || null,
+				user_permissions_id: firstPermission.id || null,
+				user_permissions_name: firstPermission.name || null,
+				user_roles: undefined,
+				user_permissions: undefined
+			};
+		});
+
+		return {
+			total: count,
+			data: transformedData
+		};
+	} catch (error) {
+		console.error("Erro ao buscar usuários:", error);
+		throw new Error("Erro ao buscar usuários");
+	}
+}
+
+async function getUserById(id, fields = null) {
+	try {
+		const baseAttributes = [];
+		const includes = [];
+
+		if (!fields) {
+			return await User.findByPk(id, {
+				include: [
+					{
+						model: Role,
+						as: "user_roles",
+						attributes: ["id", "name", "description"],
+						through: { attributes: [] }
+					},
+					{
+						model: Permission,
+						as: "user_permissions",
+						attributes: ["id", "name", "description"],
+						through: { attributes: [] }
+					}
+				]
 			});
-		} else if (field === "user_permissions") {
-			includes.push({
-				model: Permission,
-				as: "user_permissions",
-				attributes: ["id", "name", "description"],
-				through: { attributes: [] }
-			});
-		} else {
-			baseAttributes.push(field);
 		}
-	}
 
-	return await User.findByPk(id, {
-		attributes: baseAttributes,
-		include: includes.length > 0 ? includes : undefined
-	});
+		for (const field of fields) {
+			if (!ALLOWED_FIELDS.includes(field)) continue;
+
+			if (field === "user_roles") {
+				includes.push({
+					model: Role,
+					as: "user_roles",
+					attributes: ["id", "name", "description"],
+					through: { attributes: [] }
+				});
+			} else if (field === "user_permissions") {
+				includes.push({
+					model: Permission,
+					as: "user_permissions",
+					attributes: ["id", "name", "description"],
+					through: { attributes: [] }
+				});
+			} else {
+				baseAttributes.push(field);
+			}
+		}
+
+		return await User.findByPk(id, {
+			attributes: baseAttributes.length > 0 ? baseAttributes : undefined,
+			include: includes.length > 0 ? includes : undefined
+		});
+	} catch (error) {
+		console.error("Erro ao buscar usuário por ID:", error);
+		throw new Error("Erro ao buscar usuário");
+	}
 }
 
 async function insertUser(dto) {
-	const userByEmail = await User.findOne({
-		where: { email: dto.email }
-	});
-
-	if (userByEmail) {
-		return { message: "Usuário já cadastrado"};
-	}
-
-	const password_hash = await hash(dto.password, 8);
-
-	const newUser = await User.create({
-		...dto,
-		password_hash
-	});
-
 	try {
-		return newUser;
+		const existing = await User.findOne({ where: { email: dto.email } });
+		if (existing) {
+			throw new Error("Usuário já cadastrado");
+		}
+
+		const password_hash = await hash(dto.password, 8);
+		const user = await User.create({ ...dto, password_hash });
+
+		const userSafe = user.toJSON();
+		delete userSafe.password_hash;
+
+		return userSafe;
 	} catch (error) {
-		return { message: "Erro ao criar usuário!", error: error.message };
+		console.error("Erro ao criar usuário:", error);
+		throw new Error(error.message || "Erro ao criar usuário");
 	}
 }
 
 async function updateUser(payload, id) {
 	try {
-		const user = await User.findByPk(id);
+		const user = await User.scope("withPassword").findByPk(id);
 
 		if (!user) {
-			return { message: "Usuário não encontrado." };
+			throw new Error("Usuário não encontrado.");
 		}
 
 		const {
-			user_roles,
-			user_permissions,
+			role_ids,
+			permission_ids,
+			password,
 			...userFields
 		} = payload;
 
 		await user.update(userFields);
 
-		if (user_roles) {
-			const roleIds = Array.isArray(user_roles)
-				? user_roles
-				: [user_roles];
-			await user.setUser_roles(roleIds);
+		if (password) {
+			user.password = password;
+			await user.save();
 		}
 
-		if (user_permissions) {
-			const permissionIds = Array.isArray(user_permissions)
-				? user_permissions
-				: [user_permissions];
-			await user.setUser_permissions(permissionIds);
+		if (role_ids !== undefined) {
+			await user.setUser_roles(role_ids);
+		}
+
+		if (permission_ids !== undefined) {
+			await user.setUser_permissions(permission_ids);
 		}
 
 		return { message: "Usuário atualizado com sucesso!" };
 	} catch (error) {
 		console.error("Erro ao atualizar usuário:", error);
-		return { message: "Erro ao atualizar usuário." };
+		throw new Error(error.message || "Erro ao atualizar usuário");
 	}
 }
 
 async function deleteUserById(id) {
-	const deletedUser = await User.destroy({ where: { id } });
+	try {
+		const deleted = await User.destroy({ where: { id } });
 
-	if (deletedUser === 0) {
-		return { message: "Usuário não encontrado para exclusão!" };
+		if (deleted === 0) {
+			throw new Error("Usuário não encontrado para exclusão!");
+		}
+
+		return { message: "Usuário excluído com sucesso!" };
+	} catch (error) {
+		console.error("Erro ao deletar usuário:", error);
+		throw new Error(error.message || "Erro ao deletar usuário");
 	}
-
-	return { message: "Usuário excluído com sucesso!" };
 }
 
 module.exports = {

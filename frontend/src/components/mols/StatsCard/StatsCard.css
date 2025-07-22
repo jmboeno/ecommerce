@@ -1,0 +1,56 @@
+/* src/components/mols/StatsCard/StatsCard.css */
+.stats-card {
+	background-color: white;
+	border-radius: var(--rounded-md);
+	box-shadow: var(--shadow-md);
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-height: 120px; /* Ensure consistent height */
+}
+
+.card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 15px;
+}
+
+.card-title {
+	color: var(--placeholder-color);
+	font-weight: 500;
+}
+
+.icon-wrapper {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: white; /* Icons should be white */
+}
+
+.card-icon {
+	color: white;
+	font-size: 1.2rem;
+}
+
+.card-body .h2 {
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: 5px;
+}
+
+.percentage-change {
+	font-weight: 500;
+}
+
+.percentage-change.positive {
+	color: var(--success-color);
+}
+
+.percentage-change.negative {
+	color: var(--error-color);
+}

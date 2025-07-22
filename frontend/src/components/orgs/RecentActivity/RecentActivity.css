@@ -1,0 +1,29 @@
+/* src/components/orgs/RecentActivity/RecentActivity.css */
+.recent-activity-card {
+	background-color: white;
+	border-radius: var(--rounded-md);
+	box-shadow: var(--shadow-md);
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.card-header-with-action {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.card-header-with-action .h4 {
+	margin-bottom: 0; /* Override default h4 margin */
+}
+
+.view-all-button {
+	padding: 8px 15px;
+	font-size: 0.9rem;
+}
+
+.activity-list {
+	flex-grow: 1;
+}

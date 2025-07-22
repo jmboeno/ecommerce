@@ -1,0 +1,51 @@
+/* src/components/templates/DashboardLayout/DashboardLayout.css */
+.dashboard-layout {
+	display: flex;
+	min-height: 100vh;
+	background-color: var(--gray-bg);
+}
+
+.dashboard-main-content {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.dashboard-content-area {
+	flex-grow: 1;
+	padding: 30px;
+	overflow-y: auto; /* Enable scrolling for content area */
+}
+
+/* Responsive adjustments for sidebar */
+@media (max-width: 1024px) {
+	.sidebar {
+		width: 60px; /* Collapse sidebar */
+	}
+	.sidebar .sidebar-header .logo-text-dashboard,
+	.sidebar .sidebar-nav .sidebar-link .text {
+		display: none; /* Hide text */
+	}
+	.sidebar .sidebar-nav .sidebar-link {
+		justify-content: center; /* Center icons */
+	}
+}
+
+@media (max-width: 768px) {
+	.sidebar {
+		position: fixed; /* Make sidebar fixed on mobile */
+		left: -250px; /* Hide by default */
+		height: 100%;
+		z-index: 1000;
+		transition: left 0.3s ease-in-out;
+		/* Add a toggle button for mobile */
+	}
+
+	.dashboard-main-content {
+		margin-left: 0; /* No margin when sidebar is hidden */
+	}
+
+	/* You would need a button to toggle a class like .sidebar-open on .dashboard-layout */
+	/* For example, if .dashboard-layout.sidebar-open .sidebar { left: 0; } */
+	/* And .dashboard-layout.sidebar-open .dashboard-main-content { margin-left: 250px; } */
+}

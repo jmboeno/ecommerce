@@ -1,25 +1,29 @@
-const { verify, decode } = require("jsonwebtoken");
+const { verify } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
 
 module.exports = async (req, res, next) => {
-	const token = req.headers.authorization;
+	const authHeader = req.headers.authorization;
 
-	if (!token) {
-		return res.status(401).send("Access token não informado");
+	if (!authHeader) {
+		return res.status(401).json({ message: "Access token não informado" });
 	}
 
-	const [_, accessToken] = token.split(" ");
+	// Espera o formato: "Bearer token"
+	const [scheme, token] = authHeader.split(" ");
+
+	if (scheme !== "Bearer" || !token) {
+		return res.status(401).json({ message: "Formato do token inválido" });
+	}
 
 	try {
-		verify(accessToken, jsonSecret.secret);
+		const decoded = verify(token, jsonSecret.secret);
 
-		const { id, email } = decode(accessToken);
+		// Passar dados do usuário para os próximos middlewares/controladores
+		req.user_id = decoded.id;
+		req.user_email = decoded.email;
 
-		req.user_id = id;
-		req.user_email = email;
-
-		return next();
+		next();
 	} catch (error) {
-		res.status(401).send("Usuário não autorizado");
+		return res.status(401).json({ message: "Usuário não autorizado" });
 	}
 };

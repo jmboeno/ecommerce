@@ -6,9 +6,9 @@ const router = Router();
 
 router.use(authenticated);
 router.get("/", getPermissions);
-//router.get("/:id", getRecharge);
+//router.get("/:id", getProduct);
 router.post("/", postPermission);
-//router.patch("/:id", patchRecharge);
-//router.delete("/:id", deleteRecharge);
+//router.patch("/:id", patchProduct);
+//router.delete("/:id", deleteProduct);
 
 module.exports = router;

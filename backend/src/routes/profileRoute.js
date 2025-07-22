@@ -6,7 +6,7 @@ const { roles } = require("../middleware/roles");
 const router = Router();
 
 router.use(authenticated);
-router.get("/", roles(["Gerente", "Client"]), getProfile);
+router.get("/"/* , roles(["Gerente", "Client"]) */, getProfile);
 router.patch("/:id", patchProfile);
 
 module.exports = router;

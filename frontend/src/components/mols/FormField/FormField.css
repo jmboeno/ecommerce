@@ -1,0 +1,42 @@
+/* src/components/mols/FormField/FormField.css */
+.form-field {
+	margin-bottom: 16px;
+	position: relative;
+}
+
+.form-field-label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 500;
+}
+
+.input-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.input-icon {
+	position: absolute;
+	left: 12px;
+	color: var(--placeholder-color);
+	z-index: 1;
+}
+
+.input-icon.clickable {
+	cursor: pointer;
+}
+
+.input.with-icon {
+	padding-left: 40px; /* Make space for the icon */
+}
+
+.form-field .error-message {
+	color: var(--error-color);
+	margin-top: 4px;
+	font-size: 0.875rem;
+}
+
+.form-field.error .input {
+	border-color: var(--error-color);
+}

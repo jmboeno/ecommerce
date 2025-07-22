@@ -1,0 +1,40 @@
+/* src/components/orgs/RegistrationForm/RegistrationForm.css */
+.registration-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.name-fields {
+	display: flex;
+	gap: 16px;
+}
+
+.name-fields .form-field {
+	flex: 1;
+}
+
+.register-button {
+	width: 100%;
+	margin-top: 20px;
+}
+
+.login-link {
+	text-align: center;
+	margin-top: 20px;
+}
+
+.login-link a {
+	color: var(--primary-purple);
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.login-link a:hover {
+	text-decoration: underline;
+}
+
+.registration-form .error-message {
+	margin-top: -10px; /* Adjust to sit closer to the checkbox */
+	margin-bottom: 10px;
+}

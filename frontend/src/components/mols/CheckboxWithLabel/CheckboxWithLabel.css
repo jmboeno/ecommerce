@@ -1,0 +1,10 @@
+/* src/components/mols/CheckboxWithLabel/CheckboxWithLabel.css */
+.checkbox-with-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.checkbox-label {
+	cursor: pointer;
+}

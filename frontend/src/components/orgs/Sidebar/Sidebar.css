@@ -1,0 +1,78 @@
+/* src/components/orgs/Sidebar/Sidebar.css */
+.sidebar {
+	width: 250px;
+	background-color: white;
+	padding: 20px;
+	border-right: 1px solid var(--border-color);
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+	position: sticky;
+	top: 0;
+	height: 100vh; /* Make it stick */
+	overflow-y: auto; /* Enable scrolling if content exceeds height */
+}
+
+.sidebar-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header .logo-icon {
+	font-size: 1.8rem;
+	color: var(--primary-purple);
+}
+
+.sidebar-header .logo-text-dashboard {
+	font-weight: 700;
+	font-size: 1.1rem;
+	color: var(--text-color);
+}
+
+.sidebar-nav ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.sidebar-nav li {
+	margin-bottom: 8px;
+}
+
+.sidebar-link {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 15px;
+	border-radius: var(--rounded-md);
+	color: var(--text-color);
+	transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.sidebar-link:hover {
+	background-color: var(--gray-bg);
+	color: var(--primary-purple);
+}
+
+.sidebar-link.active {
+	background-color: var(--primary-purple);
+	color: white;
+	font-weight: 600;
+}
+
+.sidebar-link.active .icon {
+	color: white; /* Ensure icons are white when active */
+}
+
+.sidebar-link .icon {
+	color: var(--placeholder-color); /* Default icon color */
+	transition: color 0.2s ease-in-out;
+}
+
+.sidebar-link:hover .icon {
+	color: var(--primary-purple);
+}

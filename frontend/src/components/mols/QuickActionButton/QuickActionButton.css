@@ -1,0 +1,49 @@
+/* src/components/mols/QuickActionButton/QuickActionButton.css */
+.quick-action-button {
+	flex-direction: column;
+	gap: 10px;
+	padding: 20px;
+	min-height: 100px;
+	border-radius: var(--rounded-md);
+	color: var(--text-color); /* Default text color */
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+	flex: 1; /* Allow buttons to grow and shrink */
+	min-width: 150px; /* Minimum width for responsiveness */
+}
+
+.quick-action-button:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.quick-action-button .icon {
+	color: var(--text-color); /* Icon color matches text by default */
+}
+
+/* Specific background colors from image */
+.quick-action-button[style*="background-color: rgb(238, 238, 255)"] { /* Light purple */
+	background-color: #eeeefe;
+	color: var(--primary-purple);
+}
+.quick-action-button[style*="background-color: rgb(235, 255, 235)"] { /* Light green */
+	background-color: #ebffeb;
+	color: var(--success-color);
+}
+.quick-action-button[style*="background-color: rgb(230, 245, 255)"] { /* Light blue */
+	background-color: #e6f5ff;
+	color: var(--info-color);
+}
+.quick-action-button[style*="background-color: rgb(255, 250, 230)"] { /* Light yellow/orange */
+	background-color: #fffae6;
+	color: var(--warning-color);
+}
+
+.quick-action-button .icon {
+	font-size: 2.5rem; /* Larger icon size */
+	margin-bottom: 5px;
+}
+
+.quick-action-button .button-label {
+	font-weight: 600;
+}

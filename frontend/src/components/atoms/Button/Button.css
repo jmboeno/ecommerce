@@ -1,0 +1,41 @@
+/* src/components/atoms/Button/Button.css */
+.button {
+	padding: 12px 24px;
+	border: none;
+	border-radius: var(--rounded-md);
+	cursor: pointer;
+	font-size: 1rem;
+	font-weight: 600;
+	transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.button.primary {
+	background-color: var(--primary-purple);
+	color: white;
+}
+
+.button.primary:hover {
+	background-color: var(--dark-purple);
+	box-shadow: 0 6px 8px rgba(106, 13, 173, 0.3);
+}
+
+.button.secondary {
+	background-color: transparent;
+	color: var(--primary-purple);
+	border: 1px solid var(--primary-purple);
+}
+
+.button.secondary:hover {
+	background-color: var(--light-purple);
+	color: white;
+}
+
+.button:disabled {
+	background-color: var(--border-color);
+	color: var(--placeholder-color);
+	cursor: not-allowed;
+}

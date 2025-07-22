@@ -1,0 +1,129 @@
+/* src/components/orgs/AuthForm/AuthForm.css */
+.auth-container {
+	display: flex;
+	min-height: 100vh;
+	background-color: white; /* Default background for the form side */
+}
+
+.auth-sidebar {
+	flex: 1;
+	background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+	color: white;
+	padding: 40px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 20px;
+}
+
+.sidebar-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 40px;
+}
+
+.sidebar-header .logo-icon {
+	font-size: 2rem; /* Adjust based on your logo */
+}
+
+.sidebar-header .logo-text {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: white;
+}
+
+.sidebar-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 10px;
+	line-height: 1.2;
+}
+
+.sidebar-description {
+	font-size: 1.1rem;
+	margin-bottom: 30px;
+	opacity: 0.9;
+}
+
+.feature-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.feature-list li {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 15px;
+	font-size: 1.05rem;
+}
+
+.feature-list li .icon {
+	color: white;
+	font-size: 1.2rem;
+}
+
+.auth-content {
+	flex: 1.5;
+	display: flex;
+	flex-direction: column;
+	padding: 40px;
+	justify-content: center;
+	align-items: center;
+}
+
+.auth-header {
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	position: absolute; /* Position it absolutely within auth-content */
+	top: 40px;
+	right: 40px;
+}
+
+.theme-toggle-icon {
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: var(--text-color);
+}
+
+.auth-form-wrapper {
+	width: 100%;
+	max-width: 450px; /* Max width for the form itself */
+	padding-top: 60px; /* Space for the header */
+}
+
+.auth-form-wrapper .form-title {
+	font-size: 2.2rem;
+	font-weight: 700;
+	margin-bottom: 10px;
+	text-align: left;
+}
+
+.auth-form-wrapper .form-description {
+	font-size: 1rem;
+	color: var(--placeholder-color);
+	margin-bottom: 30px;
+	text-align: left;
+}
+
+@media (max-width: 900px) {
+	.auth-sidebar {
+		display: none; /* Hide sidebar on smaller screens */
+	}
+	.auth-content {
+		flex: 1; /* Take full width */
+		padding: 20px;
+	}
+	.auth-header {
+		top: 20px;
+		right: 20px;
+	}
+	.auth-form-wrapper {
+		max-width: 100%;
+		padding-top: 40px;
+	}
+}

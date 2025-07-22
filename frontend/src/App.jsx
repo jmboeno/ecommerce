@@ -1,21 +1,27 @@
-import React from "react";
-import { RouterProvider } from "react-router-dom";
-import { GlobalStyles } from "./components/GlobalStyles/GlobalStyles";
-import { ThemeProviderWrapper } from "./components/ThemeProvider/ThemeProvider";
-import { router } from "./router/router";
-import { UserSessionProvider } from "./context/UserSession";
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { LoadingProvider } from './context/LoadingContext';
+import AppRoutes from './routes';
+import GlobalLoadingIndicator from './components/atoms/GlobalLoadingIndicator/GlobalLoadingIndicator';
+
+// Importar os componentes e estilos do react-toastify
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Estilos padrão do Toastify
 
 function App() {
 	return (
-		<ThemeProviderWrapper>
-			<GlobalStyles />
-			<UserSessionProvider>
-				<RouterProvider router={router} />
-			</UserSessionProvider>
-			<ToastContainer position="top-right" autoClose={3000} />
-		</ThemeProviderWrapper>
+		<Router>
+			<LoadingProvider>
+				<AuthProvider>
+					<GlobalLoadingIndicator /> {/* Global loading spinner */}
+					<AppRoutes />
+					{/* Adicionar o ToastContainer aqui, geralmente no topo ou no final do App */}
+					<ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+				</AuthProvider>
+			</LoadingProvider>
+		</Router>
 	);
 }
 
