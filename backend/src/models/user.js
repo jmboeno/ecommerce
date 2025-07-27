@@ -1,3 +1,4 @@
+// jmboeno/ecommerce/ecommerce-1452d409c9970bb92bc8d44e563a83479f8fa910/backend/src/models/user.js
 "use strict";
 const { Model } = require("sequelize");
 const bcrypt = require("bcrypt");
@@ -23,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
 			});
 		}
 
-		// Método de verificação de senha
 		validPassword(password) {
 			return bcrypt.compare(password, this.password_hash);
 		}
@@ -72,8 +72,26 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			scopes: {
 				withPassword: {
-					attributes: {},
+					attributes: ["id", "name", "email", "password_hash", "active", "phone"],
+					include: [
+						{
+							model: sequelize.models.Role,
+							as: "user_roles",
+							attributes: ["id", "name"],
+							through: { attributes: [] }
+						}
+					]
 				},
+				withRoles: {
+					include: [
+						{
+							model: sequelize.models.Role,
+							as: "user_roles",
+							attributes: ["id", "name"],
+							through: { attributes: [] }
+						}
+					]
+				}
 			},
 		}
 	);

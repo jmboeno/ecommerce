@@ -1,3 +1,4 @@
+// jmboeno/ecommerce/ecommerce-1452d409c9970bb92bc8d44e563a83479f8fa910/backend/src/middleware/authenticated.js
 const { verify } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
 const { BlacklistedToken } = require("../models");
@@ -28,6 +29,7 @@ module.exports = async (req, res, next) => {
 		// Passa informações do usuário adiante
 		req.user_id = decoded.id;
 		req.user_email = decoded.email;
+		req.user_role = decoded.role; // <--- Adiciona a role ao objeto req.user_role
 
 		next();
 	} catch (error) {

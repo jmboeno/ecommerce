@@ -8,15 +8,16 @@ async function postLogin(req, res) {
 	}
 
 	try {
-		const { accessToken, refreshToken, user, message } = await authenticate({ email, password });
+		const { success, accessToken, refreshToken, user, message } = await authenticate({ email, password });
 
-		if (accessToken && refreshToken)
+		if (success) {
 			return res.status(200).json({ accessToken, refreshToken, user });
-
-		return res.status(400).json({ message });
+		} else {
+			return res.status(401).json({ message: message || "Erro na autenticação. Verifique suas credenciais." });
+		}
 	} catch (error) {
-		console.error("Erro no login:", error);
-		return res.status(401).json({ message: "Erro no login!" });
+		console.error("Erro inesperado no login:", error);
+		return res.status(500).json({ message: "Erro interno do servidor!" });
 	}
 }
 

@@ -1,8 +1,8 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import eslintPluginReact from 'eslint-plugin-react'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import js from '@eslint/js';
+import globals from 'globals';
+import eslintPluginReact from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
 	{ ignores: ['dist'] },
@@ -28,10 +28,11 @@ export default [
 			...reactHooks.configs.recommended.rules,
 			'no-unused-vars': 'off',
 			'react-refresh/only-export-components': 'off',
-			'indent': ['error', 'tab'],
+			// Ajuste a regra 'indent' para aceitar a indentação do 'case'
+			'indent': ['error', 'tab', { 'SwitchCase': 1 }], // <--- Adicionada a opção 'SwitchCase'
 			'react/jsx-indent': ['error', 'tab'],
 			'react/jsx-indent-props': ['error', 'tab'],
 			"react/prop-types": "off",
 		},
 	},
-]
+];

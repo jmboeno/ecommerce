@@ -1,4 +1,4 @@
-// front/src/services/dashboard.js
+// jmboeno/ecommerce/ecommerce-1452d409c9970bb92bc8d44e563a83479f8fa910/frontend/src/services/dashboard.js
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -16,7 +16,7 @@ export const fetchDashboardData = async () => {
 			throw new Error('No authentication token found. Please log in.');
 		}
 
-		const response = await axios.get(`${API_BASE_URL}/dashboard/data`, {
+		const response = await axios.get(`${API_BASE_URL}/dashboard`, {
 			headers: {
 				Authorization: `Bearer ${token}`
 			}
@@ -24,22 +24,23 @@ export const fetchDashboardData = async () => {
 
 		console.log("Resposta completa da API:", response); // Log completo da resposta do axios
 		console.log("Dados da resposta (response.data):", response.data); // Log da propriedade 'data'
-		console.log("Stats da resposta (response.data.stats):", response.data.stats); // Log da propriedade 'stats'
+		// console.log("Stats da resposta (response.data.stats):", response.data.stats); // Este log pode falhar para clientes
 
 		// Estrutura a resposta para corresponder ao que DashboardPage espera
+		// Use encadeamento opcional para acessar stats, e forneça um objeto vazio se stats não existir
+		const statsData = response.data.stats || {}; // <--- CORREÇÃO AQUI: Garante que statsData nunca é undefined
+
 		return {
 			stats: {
-				// Acesse as propriedades de stats através de 'response.data.stats'
-				totalUsers: response.data.stats.totalUsers || 0, // <--- CORREÇÃO AQUI
-				totalUsersChange: response.data.stats.totalUsersChange || 0, // <--- CORREÇÃO AQUI
-				totalSales: response.data.stats.totalSales || 0, // <--- CORREÇÃO AQUI
-				totalSalesChange: response.data.stats.totalSalesChange || 0, // <--- CORREÇÃO AQUI
-				products: response.data.stats.products || 0, // <--- CORREÇÃO AQUI
-				productsChange: response.data.stats.productsChange || 0, // <--- CORREÇÃO AQUI
-				suppliers: response.data.stats.suppliers || 0, // <--- CORREÇÃO AQUI
-				suppliersChange: response.data.stats.suppliersChange || 0, // <--- CORREÇÃO AQUI
+				totalUsers: statsData.totalUsers || 0,
+				totalUsersChange: statsData.totalUsersChange || 0,
+				totalSales: statsData.totalSales || 0,
+				totalSalesChange: statsData.totalSalesChange || 0,
+				products: statsData.products || 0,
+				productsChange: statsData.productsChange || 0,
+				suppliers: statsData.suppliers || 0,
+				suppliersChange: statsData.suppliersChange || 0,
 			},
-			// Activities já está correto, pois é uma propriedade direta de response.data
 			activities: response.data.activities || [],
 		};
 	} catch (error) {

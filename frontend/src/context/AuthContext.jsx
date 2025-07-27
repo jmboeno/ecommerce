@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }) => {
 				setIsAuthenticated(true);
 				toast.success(response.message);
 				console.log("AuthContext: Login bem-sucedido.");
-				navigate('/dashboard/overview');
+				navigate('/dashboard');
 				return { success: true };
 			} else {
 				toast.error(response.message);

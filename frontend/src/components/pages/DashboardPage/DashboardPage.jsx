@@ -1,114 +1,153 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import DashboardLayout from '../../templates/DashboardLayout/DashboardLayout';
-import DashboardStats from '../../orgs/DashboardStats/DashboardStats'; // Usar 'orgs'
-import RecentActivity from '../../orgs/RecentActivity/RecentActivity'; // Usar 'orgs'
-import QuickActions from '../../orgs/QuickActions/QuickActions'; // Usar 'orgs'
-import { LoadingContext } from '../../../context/LoadingContext';
-import { fetchDashboardData } from '../../../services/dashboard'; // Seu serviço de fetch
-import { toast } from 'react-toastify';
-import { AuthContext } from '../../../context/AuthContext';
+// jmboeno/ecommerce/ecommerce-1452d409c9970bb92bc8d44e563a83479f8fa910/frontend/src/components/pages/DashboardPage/DashboardPage.jsx
+import React, { useEffect, useState, useContext, useRef, useCallback } from "react";
+// Remova Routes e Route daqui, pois não teremos mais rotas aninhadas neste componente
+// import { Routes, Route, useNavigate } from "react-router-dom"; // REMOVER
+import { useNavigate } from "react-router-dom"; // Manter useNavigate se usado internamente
+import DashboardLayout from "../../templates/DashboardLayout/DashboardLayout.jsx";
+import DashboardStats from "../../orgs/DashboardStats/DashboardStats.jsx";
+import RecentActivity from "../../orgs/RecentActivity/RecentActivity.jsx";
+import QuickActions from "../../orgs/QuickActions/QuickActions.jsx";
+import { LoadingContext } from "../../../context/LoadingContext.jsx";
+import { fetchDashboardData } from "../../../services/dashboard.js";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../../context/AuthContext.jsx";
+import Text from "../../atoms/Text/Text.jsx";
+import Button from "../../atoms/Button/Button.jsx";
+import Icon from "../../atoms/Icon/Icon.jsx";
+import StatsCard from "../../mols/StatsCard/StatsCard.jsx";
+// Não importamos mais ProfilePage ou OrdersContentPage aqui, pois não serão rotas aninhadas.
+// import ProfilePage from "../ProfilePage/ProfilePage.jsx";
+// import OrdersContentPage from "../OrdersContentPage/OrdersContentPage.jsx";
 
 const DashboardPage = () => {
 	const { startLoading, stopLoading, isLoading } = useContext(LoadingContext);
-	const { isAuthenticated, user } = useContext(AuthContext); // user?.id é crucial nas dependências
+	const { isAuthenticated, user } = useContext(AuthContext);
 	const [dashboardData, setDashboardData] = useState({
-		stats: {
-			totalUsers: 0,
-			totalUsersChange: 0,
-			totalSales: 0,
-			totalSalesChange: 0,
-			products: 0,
-			productsChange: 0,
-			suppliers: 0,
-			suppliersChange: 0,
-		},
+		stats: { /* ... */ },
 		activities: [],
 	});
 
-	const [dataLoaded, setDataLoaded] = useState(false); // Indica se os dados foram carregados com sucesso
-	const apiCallInitiated = useRef(false); // <--- FLAG CRUCIAL: true se a chamada API foi INICIADA
+	const [dataLoaded, setDataLoaded] = useState(false);
+	const apiCallInitiated = useRef(false);
 
-	// Logs para depuração
 	const effectRunCount = useRef(0);
 	const fetchCallCount = useRef(0);
+
+	const navigate = useNavigate();
+
+	const getDashboardData = useCallback(async () => {
+		fetchCallCount.current += 1;
+		console.log(`fetchDashboardData chamada. Contagem de chamadas à função: ${fetchCallCount.current}`);
+
+		if (dataLoaded) {
+			console.log("getDashboardData: Dados já carregados (dataLoaded=true). Abortando requisição.");
+			return;
+		}
+
+		if (!isLoading) {
+			startLoading();
+			console.log("getDashboardData: startLoading disparado.");
+		}
+
+		try {
+			const data = await fetchDashboardData();
+			setDashboardData(data);
+			toast.success("Dados do dashboard carregados com sucesso!");
+			setDataLoaded(true);
+			console.log("getDashboardData: Dados carregados com sucesso. setDataLoaded(true).");
+		} catch (error) {
+			console.error('Erro ao buscar dados do dashboard:', error);
+			toast.error(error.message || "Falha ao carregar dados do dashboard.");
+		} finally {
+			stopLoading();
+			console.log("getDashboardData: stopLoading disparado.");
+		}
+	}, [dataLoaded, isLoading, startLoading, stopLoading]);
 
 	useEffect(() => {
 		effectRunCount.current += 1;
 		console.log(`DashboardPage useEffect executado. Contagem: ${effectRunCount.current}`);
-		console.log("Estado atual (início useEffect): isAuthenticated:", isAuthenticated, "dataLoaded:", dataLoaded, "user:", user ? user.id : 'null', "apiCallInitiated.current:", apiCallInitiated.current);
+		console.log("Estado atual (início useEffect): isAuthenticated:", isAuthenticated, "dataLoaded:", dataLoaded, "user:", user ? `ID: ${user.id}, Role: ${user.role}` : "null", "apiCallInitiated.current:", apiCallInitiated.current);
 
-		const getDashboardData = async () => {
-			fetchCallCount.current += 1;
-			console.log(`fetchDashboardData chamada. Contagem de chamadas à função: ${fetchCallCount.current}`);
-
-			// Se os dados já foram carregados com sucesso, não faça a requisição novamente
-			if (dataLoaded) {
-				console.log("getDashboardData: Dados já carregados (dataLoaded=true). Abortando requisição.");
-				return;
-			}
-
-			// Inicia o loading
-			if (!isLoading) { // Evita iniciar loading se já estiver ativo por outra operação (AuthContext)
-				startLoading();
-				console.log("getDashboardData: startLoading disparado.");
-			}
-
-			try {
-				const data = await fetchDashboardData(); // Chama a API
-				setDashboardData(data);
-				toast.success("Dados do dashboard carregados com sucesso!");
-				setDataLoaded(true); // <--- Marca que os dados foram carregados com sucesso
-				console.log("getDashboardData: Dados carregados com sucesso. setDataLoaded(true).");
-			} catch (error) {
-				console.error('Erro ao buscar dados do dashboard:', error);
-				toast.error(error.message || "Falha ao carregar dados do dashboard.");
-				// Se der erro, 'dataLoaded' permanece 'false', permitindo uma nova tentativa
-				// (porém 'apiCallInitiated.current' previne um loop imediato)
-			} finally {
-				stopLoading(); // Garante que o loading para
-				console.log("getDashboardData: stopLoading disparado.");
-			}
-		};
-
-		// Condição principal para disparar a busca de dados:
-		// 1. O usuário está autenticado E o objeto 'user' tem um ID (indicando que foi totalmente carregado)
-		// 2. Os dados do dashboard AINDA NÃO foram carregados com sucesso (`!dataLoaded`)
-		// 3. E, CRUCIALMENTE, a chamada da API para esta instância do componente AINDA NÃO foi iniciada (`!apiCallInitiated.current`)
-		if (isAuthenticated && user?.id && !dataLoaded && !apiCallInitiated.current) {
+		if (isAuthenticated && user?.id && user?.role && !dataLoaded && !apiCallInitiated.current) {
 			console.log("DashboardPage: Condição para buscar dados atendida. Disparando API...");
-			apiCallInitiated.current = true; // <--- MARCA QUE A CHAMADA FOI INICIADA
+			apiCallInitiated.current = true;
 			getDashboardData();
 		} else {
 			console.log("DashboardPage: Condição para buscar dados NÃO atendida.");
-			console.log(`DashboardPage: isAuth: ${isAuthenticated}, user?.id: ${user?.id ? 'true' : 'false'}, !dataLoaded: ${!dataLoaded}, !apiCallInitiated.current: ${!apiCallInitiated.current}`);
 		}
 
-		// Cleanup function (executada na desmontagem ou antes de re-executar o effect)
-		// Reset apiCallInitiated.current para false para que em um DESMONTAGEM real
-		// e remontagem subsequente, a requisição possa ser feita novamente.
-		// No StrictMode, essa limpeza acontece *antes* da re-execução, permitindo a "segunda" chamada.
 		return () => {
 			console.log(`DashboardPage useEffect cleanup executado. Contagem: ${effectRunCount.current}`);
-			// Se você quer que a requisição seja feita apenas uma vez por *sessão de navegação*,
-			// não resete apiCallInitiated.current aqui.
-			// Para o StrictMode e navegação normal, geralmente é bom resetar.
-			// No entanto, para evitar 3 chamadas, o segredo é a condição de disparo.
-			// O ref 'apiCallInitiated' funciona *por montagem de componente*.
-			// Se o componente *desmonta e remonta de verdade* (ex: navega para outra página e volta),
-			// apiCallInitiated.current deve ser resetado.
-			// No StrictMode, a "remontagem" é simulada e o ref persiste, mas o effect roda novamente.
 		};
 
-	}, [isAuthenticated, user?.id, dataLoaded, startLoading, stopLoading, isLoading]); // Dependências
+	}, [isAuthenticated, user?.id, user?.role, dataLoaded, getDashboardData]);
+
+	// Lógica de renderização condicional baseada na role do usuário
+	const renderDashboardContent = () => {
+		if (!user || !user.role) {
+			return <Text variant="body" style={{ textAlign: "center", marginTop: "50px" }}>Carregando opções do dashboard...</Text>;
+		}
+
+		switch (user.role) {
+			case "Administrador":
+				return (
+					<>
+						<DashboardStats stats={dashboardData.stats} />
+						<div className="dashboard-bottom-row">
+							<RecentActivity activities={dashboardData.activities} />
+							<QuickActions />
+						</div>
+					</>
+				);
+			case "Cliente":
+				// Agora, como DashboardPage é *a* página de overview para o cliente,
+				// ela só mostra as atividades recentes, conforme solicitado anteriormente.
+				return (
+					<>
+						<RecentActivity activities={dashboardData.activities} />
+						{/* Se você quiser as ações rápidas do cliente novamente aqui no Overview, descomente */}
+						{/*
+						<div style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: "15px",
+							padding: "20px",
+							border: "1px solid var(--border-color)",
+							borderRadius: "var(--rounded-md)",
+							boxShadow: "var(--shadow-md)",
+							backgroundColor: "white",
+							marginTop: "20px"
+						}}>
+							<Text variant="h4" style={{ textAlign: "center", marginBottom: "10px" }}>Minhas Ações</Text>
+							<Button onClick={() => navigate("/dashboard/orders")} variant="primary" disabled={isLoading} style={{ width: "100%" }}>
+								<Icon name="sales" /> Meus Pedidos
+							</Button>
+							<Button onClick={() => alert("Ver meus favoritos!")} variant="secondary" disabled={isLoading} style={{ width: "100%" }}>
+								<Icon name="products" /> Meus Favoritos
+							</Button>
+							<Button onClick={() => navigate("/dashboard/profile")} variant="secondary" disabled={isLoading} style={{ width: "100%" }}>
+								<Icon name="settings" /> Meu Perfil
+							</Button>
+							<Button onClick={() => alert("Contatar suporte!")} variant="secondary" disabled={isLoading} style={{ width: "100%" }}>
+								<Icon name="mail" /> Contatar Suporte
+							</Button>
+						</div>
+						*/}
+					</>
+				);
+			default:
+				return (
+					<Text variant="body" style={{ textAlign: "center", marginTop: "50px" }}>Sua role não possui opções de dashboard definidas ou não é reconhecida.</Text>
+				);
+		}
+	};
 
 	return (
-		<DashboardLayout pageTitle="Overview">
+		// DashboardLayout agora é usado diretamente por esta página
+		<DashboardLayout pageTitle="Visão Geral">
 			<div className="dashboard-grid">
-				<DashboardStats stats={dashboardData.stats} />
-				<div className="dashboard-bottom-row">
-					<RecentActivity activities={dashboardData.activities} />
-					<QuickActions />
-				</div>
+				{renderDashboardContent()}
 			</div>
 		</DashboardLayout>
 	);

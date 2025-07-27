@@ -1,12 +1,10 @@
-const { User, RefreshToken, BlacklistedToken, sequelize } = require("../models");
+const { User, Role, RefreshToken, BlacklistedToken, sequelize } = require("../models");
 const { sign, verify, decode } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
-const { insertAcl } = require("./securityService");
 const { Op } = require('sequelize');
 const { sendActivationEmail } = require("./emailService");
 
 const MIN_LOGIN_TIME_MS = 2000;
-const CUSTOMER_ROLE_ID = "48cc1519-d135-47af-83a7-5d7d48635b82";
 const ACTIVATION_TOKEN_EXPIRATION = "1d";
 const ACTIVATION_URL_BASE = "http://localhost:5173/auth/activate";
 
@@ -16,8 +14,14 @@ async function generatePairToken(user) {
 		throw new Error("Usuário inválido para geração de token");
 	}
 
+	const userWithRoles = await User.findByPk(user.id, {
+		include: [{ model: Role, as: "user_roles", attributes: ["name"] }]
+	});
+
+	const userRoleName = userWithRoles.user_roles && userWithRoles.user_roles.length > 0 ? userWithRoles.user_roles[0].name : "Cliente";
+
 	const accessToken = sign(
-		{ id: user.id, email: user.email, name: user.name },
+		{ id: user.id, email: user.email, name: user.name, role: userRoleName },
 		jsonSecret.secret,
 		{ expiresIn: "15m" }
 	);
@@ -25,13 +29,11 @@ async function generatePairToken(user) {
 	const refreshToken = sign(
 		{ id: user.id },
 		jsonSecret.refreshSecret,
-		{ expiresIn: "7d" } // Refresh token JWT com expiração de 7 dias
+		{ expiresIn: "7d" }
 	);
 
-	// Revogar tokens antigos do mesmo usuário: use 'is_revoked' e Op.gt para não revogar expirados
-	// REMOVIDO 'expired: true'
 	await RefreshToken.update(
-		{ is_revoked: true }, // <--- Corrigido para 'is_revoked: true' apenas
+		{ is_revoked: true },
 		{
 			where: {
 				user_id: user.id,
@@ -41,13 +43,12 @@ async function generatePairToken(user) {
 		}
 	);
 
-	// Data de expiração no DB para o Refresh Token (7 dias)
 	const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
 	await RefreshToken.create({
 		user_id: user.id,
 		token: refreshToken,
-		is_revoked: false, // <--- Confirme que o campo é 'is_revoked' no seu modelo
+		is_revoked: false,
 		expires_at: expiresAt,
 	});
 
@@ -58,7 +59,8 @@ async function generatePairToken(user) {
 			id: user.id,
 			name: user.name,
 			email: user.email,
-			phone: user.phone
+			phone: user.phone,
+			role: userRoleName
 		}
 	};
 }
@@ -67,12 +69,10 @@ function wait(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// --- Função de autenticação (Login) ---
 async function authenticate({ email, password }) {
 	const startTime = Date.now();
 
 	const user = await User.scope("withPassword").findOne({
-		attributes: ["id", "email", "password_hash", "active", "name", "phone"],
 		where: { email }
 	});
 
@@ -111,6 +111,13 @@ async function registerUser({ name, email, password, phone }) {
 			{ transaction: t }
 		);
 
+		const customerRole = await sequelize.models.Role.findOne({ where: { name: "Cliente" }, transaction: t });
+		if (customerRole) {
+			await createdUser.addUser_role(customerRole, { transaction: t });
+		} else {
+			console.warn("Role 'Cliente' não encontrada. Usuário registrado sem role padrão.");
+		}
+		
 		const activationToken = sign(
 			{ id: createdUser.id, email: createdUser.email },
 			jsonSecret.activationSecret,
@@ -119,15 +126,6 @@ async function registerUser({ name, email, password, phone }) {
 
 		const activationLink = `${ACTIVATION_URL_BASE}/${activationToken}`;
 
-		console.log(createdUser);
-
-		await insertAcl({
-			user_id: createdUser.id,
-			roles: [CUSTOMER_ROLE_ID],
-			permission: [],
-		}, { transaction: t }); // se insertAcl suporta passar transaction
-
-		// Tente enviar o email de ativação (aguarde o resultado)
 		await sendActivationEmail(createdUser.email, activationLink, createdUser.name);
 
 		await t.commit();
@@ -139,13 +137,11 @@ async function registerUser({ name, email, password, phone }) {
 		};
 	} catch (error) {
 		await t.rollback();
-
 		console.error("Erro no registro de usuário:", error);
 		if (error.name === 'SequelizeUniqueConstraintError') {
 			return { success: false, message: "Este e-mail já está cadastrado." };
 		}
 		if (error.response || error.code) {
-			// Exemplo de erro de envio de email
 			return { success: false, message: "Erro ao enviar email de ativação. Tente novamente." };
 		}
 		return { success: false, message: error.message || "Erro interno do servidor ao registrar usuário." };
@@ -163,13 +159,12 @@ async function refreshTokenService(token) {
 		const decodedToken = decode(token);
 		const user_id = decodedToken.id;
 
-		// Busca o token no DB, verificando se não está revogado e se ainda não expirou no DB
 		const storedRefreshToken = await RefreshToken.findOne({
 			where: {
 				token,
 				user_id,
-				is_revoked: false, // <--- Confirme que o campo é 'is_revoked'
-				expires_at: { [Op.gt]: new Date() } // Verifica se a data de expiração no DB é maior que agora
+				is_revoked: false,
+				expires_at: { [Op.gt]: new Date() }
 			}
 		});
 
@@ -177,15 +172,13 @@ async function refreshTokenService(token) {
 			console.log("refreshTokenService: Token não encontrado no DB ou já revogado/expirado.");
 			return { success: false, message: "Token inválido ou já utilizado." };
 		}
-		// Esta verificação é redundante com Op.gt, mas mantida para clareza
 		if (new Date() > storedRefreshToken.expires_at) {
 			 console.log("refreshTokenService: Token expirado de acordo com expires_at do DB.");
 			 return { success: false, message: "Token expirado." };
 		}
 
-		const user = await User.findByPk(user_id, {
-			attributes: ["id", "email", "name", "active", "phone"]
-		});
+		// Use o escopo 'withPassword' (que agora inclui roles) para buscar o usuário
+		const user = await User.scope("withPassword").findByPk(user_id); // <--- Busca com roles
 		if (!user) {
 			return { success: false, message: "Usuário não encontrado para o token." };
 		}
@@ -193,10 +186,10 @@ async function refreshTokenService(token) {
 			return { success: false, message: "Conta inativa. Por favor, ative sua conta." };
 		}
 
-		storedRefreshToken.is_revoked = true; // <--- Corrigido para 'is_revoked'
+		storedRefreshToken.is_revoked = true;
 		await storedRefreshToken.save();
 
-		const newPair = await generatePairToken(user);
+		const newPair = await generatePairToken(user); // Isso já inclui a role
 		return {
 			success: true,
 			message: "Token renovado com sucesso!",
