@@ -4,16 +4,13 @@ import { AuthContext } from '../../../context/AuthContext.jsx';
 import Icon from '../../atoms/Icon/Icon';
 import Text from '../../atoms/Text/Text';
 import Button from '../../atoms/Button/Button';
-import { useNavigate } from 'react-router-dom';
 import './DashboardHeader.css'; // Create DashboardHeader.css
 
 const DashboardHeader = ({ pageTitle }) => {
 	const { user, logout } = useContext(AuthContext);
-	const navigate = useNavigate();
 
 	const handleLogout = () => {
 		logout();
-		navigate('/login');
 	};
 
 	return (

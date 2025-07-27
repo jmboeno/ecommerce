@@ -1,4 +1,3 @@
-/* src/components/orgs/QuickActions/QuickActions.css */
 .quick-actions-card {
 	background-color: white;
 	border-radius: var(--rounded-md);
@@ -14,12 +13,12 @@
 
 .action-buttons-grid {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr); /* 2 columns */
+	grid-template-columns: repeat(2, 1fr);
 	gap: 15px;
 }
 
 @media (max-width: 768px) {
 	.action-buttons-grid {
-		grid-template-columns: 1fr; /* Single column on small screens */
+		grid-template-columns: 1fr;
 	}
 }

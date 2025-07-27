@@ -1,47 +1,45 @@
-// src/components/orgs/RegistrationForm/RegistrationForm.js
 import React, { useState } from 'react';
+import InputMask from 'react-input-mask';
 import FormField from '../../mols/FormField/FormField';
 import Button from '../../atoms/Button/Button';
 import CheckboxWithLabel from '../../mols/CheckboxWithLabel/CheckboxWithLabel';
 import Text from '../../atoms/Text/Text';
 import Icon from '../../atoms/Icon/Icon';
-import './RegistrationForm.css'; // Create RegistrationForm.css
+import './RegistrationForm.css';
 
 const RegistrationForm = ({ onSubmit, isLoading }) => {
-	const [firstName, setFirstName] = useState('');
-	const [lastName, setLastName] = useState('');
-	const [companyName, setCompanyName] = useState('');
+	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
+	const [phone, setPhone] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [agreeTerms, setAgreeTerms] = useState(false);
-	const [receiveUpdates, setReceiveUpdates] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-	// Simple validation state
 	const [errors, setErrors] = useState({});
 
 	const validate = () => {
-		let newErrors = {};
-		if (!firstName) newErrors.firstName = 'First Name is required';
-		if (!lastName) newErrors.lastName = 'Last Name is required';
+		const newErrors = {};
+		if (!name) newErrors.name = 'Nome é obrigatório';
 		if (!email) {
-			newErrors.email = 'Email Address is required';
+			newErrors.email = 'Email é obrigatório';
 		} else if (!/\S+@\S+\.\S+/.test(email)) {
-			newErrors.email = 'Email address is invalid';
+			newErrors.email = 'Email inválido';
+		}
+		if (!phone || phone.replace(/\D/g, '').length !== 11) {
+			newErrors.phone = 'Telefone inválido';
 		}
 		if (!password) {
-			newErrors.password = 'Password is required';
+			newErrors.password = 'Senha é obrigatória';
 		} else if (password.length < 6) {
-			newErrors.password = 'Password must be at least 6 characters';
+			newErrors.password = 'A senha deve ter pelo menos 6 caracteres';
 		}
 		if (!confirmPassword) {
-			newErrors.confirmPassword = 'Confirm Password is required';
+			newErrors.confirmPassword = 'Confirme sua senha';
 		} else if (password !== confirmPassword) {
-			newErrors.confirmPassword = 'Passwords do not match';
+			newErrors.confirmPassword = 'As senhas não coincidem';
 		}
-		if (!agreeTerms) newErrors.agreeTerms = 'You must agree to the terms and privacy policy';
+		if (!agreeTerms) newErrors.agreeTerms = 'Você deve aceitar os termos';
 
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
@@ -50,57 +48,27 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (validate()) {
-			onSubmit({
-				firstName,
-				lastName,
-				companyName,
-				email,
-				password,
-				agreeTerms,
-				receiveUpdates,
-			});
+			onSubmit({ name, email, phone, password });
 		}
 	};
 
 	return (
 		<form onSubmit={handleSubmit} className="registration-form">
-			<div className="name-fields">
-				<FormField
-					label="First Name"
-					type="text"
-					placeholder="First name"
-					value={firstName}
-					onChange={(e) => setFirstName(e.target.value)}
-					iconName="user"
-					id="reg-first-name"
-					error={errors.firstName}
-					required
-				/>
-				<FormField
-					label="Last Name"
-					type="text"
-					placeholder="Last name"
-					value={lastName}
-					onChange={(e) => setLastName(e.target.value)}
-					iconName="user"
-					id="reg-last-name"
-					error={errors.lastName}
-					required
-				/>
-			</div>
 			<FormField
-				label="Company Name"
+				label="Nome"
 				type="text"
-				placeholder="Your company name (optional)"
-				value={companyName}
-				onChange={(e) => setCompanyName(e.target.value)}
-				iconName="company"
-				id="reg-company-name"
+				placeholder="Seu nome completo"
+				value={name}
+				onChange={(e) => setName(e.target.value)}
+				iconName="user"
+				id="reg-name"
+				error={errors.name}
+				required
 			/>
 			<FormField
-				label="Email Address"
+				label="Email"
 				type="email"
-				placeholder="Enter your email"
+				placeholder="Seu email"
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 				iconName="mail"
@@ -109,9 +77,31 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
 				required
 			/>
 			<FormField
-				label="Password"
+				label="Telefone"
+				id="reg-phone"
+				iconName="phone"
+				error={errors.phone}
+				required
+				renderInput={() => (
+					<InputMask
+						mask="(99) 99999-9999"
+						value={phone}
+						onChange={(e) => setPhone(e.target.value)}
+					>
+						{(inputProps) => (
+							<input
+								{...inputProps}
+								type="text"
+								className="input with-icon"
+							/>
+						)}
+					</InputMask>
+				)}
+			/>
+			<FormField
+				label="Senha"
 				type={showPassword ? 'text' : 'password'}
-				placeholder="Create a strong password"
+				placeholder="Crie uma senha forte"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				iconName={showPassword ? 'eye-slash' : 'eye'}
@@ -122,9 +112,9 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
 				required
 			/>
 			<FormField
-				label="Confirm Password"
+				label="Confirmar senha"
 				type={showConfirmPassword ? 'text' : 'password'}
-				placeholder="Confirm your password"
+				placeholder="Confirme sua senha"
 				value={confirmPassword}
 				onChange={(e) => setConfirmPassword(e.target.value)}
 				iconName={showConfirmPassword ? 'eye-slash' : 'eye'}
@@ -138,31 +128,24 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
 				id="agree-terms"
 				label={
 					<>
-						I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+						Aceito os <a href="/terms" target="_blank" rel="noopener noreferrer">Termos</a> e a <a href="/privacy" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>
 					</>
 				}
 				checked={agreeTerms}
 				onChange={() => {
 					setAgreeTerms(!agreeTerms);
-					if (errors.agreeTerms) { // Clear error if checked
+					if (errors.agreeTerms) {
 						setErrors(prev => ({ ...prev, agreeTerms: undefined }));
 					}
 				}}
 			/>
 			{errors.agreeTerms && <Text variant="small" className="error-message">{errors.agreeTerms}</Text>}
 
-			<CheckboxWithLabel
-				id="receive-updates"
-				label="I want to receive updates about new features and improvements"
-				checked={receiveUpdates}
-				onChange={() => setReceiveUpdates(!receiveUpdates)}
-			/>
-
 			<Button type="submit" variant="primary" className="register-button" disabled={isLoading}>
-				{isLoading ? 'Creating Account...' : <><Icon name="user" /> Create Account</>}
+				{isLoading ? 'Criando conta...' : <><Icon name="user" /> Criar conta</>}
 			</Button>
 			<Text variant="small" className="login-link">
-				Already have an account? <a href="/login">Sign In</a>
+				Já tem uma conta? <a href="/login">Entrar</a>
 			</Text>
 		</form>
 	);

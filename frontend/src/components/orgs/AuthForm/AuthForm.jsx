@@ -2,7 +2,7 @@
 import React from 'react';
 import Text from '../../atoms/Text/Text';
 import Icon from '../../atoms/Icon/Icon';
-import './AuthForm.css'; // Create AuthForm.css
+import './AuthForm.css';
 
 const AuthForm = ({ title, description, children }) => {
 	return (

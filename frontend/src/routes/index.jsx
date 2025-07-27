@@ -3,8 +3,9 @@ import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.jsx';
 import LoginPage from '../components/pages/LoginPage/LoginPage.jsx';
-import RegisterPage from '../components/pages/RegisterPage/RegisterPage.jsx';
-import DashboardPage from '../components/pages/DashboardPage/DashboardPage.jsx'; // We'll create this next
+import RegisterPage from '../components/pages/RegisterPage/RegisterPage';
+import DashboardPage from '../components/pages/DashboardPage/DashboardPage'; // We'll create this next
+import ActivationPage from '../components/pages/ActivationPage/ActivationPage';
 
 // A simple PrivateRoute component to protect routes
 const PrivateRoute = ({ children }) => {
@@ -31,6 +32,7 @@ const AppRoutes = () => {
 				}
 			/>
 			<Route path="/register" element={<RegisterPage />} />
+			<Route path="/auth/activate/:token" element={<ActivationPage />} />
 			<Route
 				path="/dashboard/*" // Use /* for nested routes in the dashboard
 				element={

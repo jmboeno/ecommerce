@@ -1,10 +1,11 @@
 const { Sequelize } = require("sequelize");
 const { User, Role, Permission } = require("../models");
 
-async function insertAcl(dto) {
+async function insertAcl(dto, options = {}) {
 	const { user_id, roles = [], permissions = [] } = dto;
+	const { transaction } = options;
 
-	// Buscar o usuário com suas roles e permissions atuais
+	// Buscar o usuário dentro da transação
 	const user = await User.findOne({
 		where: { id: user_id },
 		include: [
@@ -18,28 +19,30 @@ async function insertAcl(dto) {
 				as: "user_permissions",
 				attributes: ["id", "name", "description"]
 			}
-		]
+		],
+		transaction
 	});
 
 	if (!user) {
 		throw new Error("Usuário não encontrado");
 	}
 
-	// Buscar as roles e permissions válidas
 	const [registeredRoles, registeredPermissions] = await Promise.all([
 		Role.findAll({
-			where: { id: { [Sequelize.Op.in]: roles } }
+			where: { id: { [Sequelize.Op.in]: roles } },
+			transaction
 		}),
 		Permission.findAll({
-			where: { id: { [Sequelize.Op.in]: permissions } }
+			where: { id: { [Sequelize.Op.in]: permissions } },
+			transaction
 		})
 	]);
 
-	// Atualizar as associações de roles e permissions do usuário
-	await user.setUser_roles(registeredRoles);
-	await user.setUser_permissions(registeredPermissions);
+	// Atualizar associações passando transaction
+	await user.setUser_roles(registeredRoles, { transaction });
+	await user.setUser_permissions(registeredPermissions, { transaction });
 
-	// Recarregar o usuário com as associações atualizadas
+	// Recarregar usuário com as associações atualizadas
 	const updatedUser = await User.findOne({
 		where: { id: user_id },
 		include: [
@@ -55,7 +58,8 @@ async function insertAcl(dto) {
 				attributes: ["id", "name", "description"],
 				through: { attributes: [] }
 			}
-		]
+		],
+		transaction
 	});
 
 	return updatedUser;

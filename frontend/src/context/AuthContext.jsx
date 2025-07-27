@@ -1,6 +1,14 @@
 // front/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { loginUser, registerUser, logoutUser, fetchCurrentUser, refreshToken as authServiceRefreshToken, activateAccount } from "../services/auth";
+import {
+	loginUser,
+	registerUser,
+	logoutUser,
+	fetchCurrentUser,
+	refreshToken as authServiceRefreshToken,
+	activateAccount,
+	resendActivationToken as authServiceResendActivationToken
+} from "../services/auth";
 import { LoadingContext } from "./LoadingContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -184,18 +192,42 @@ export const AuthProvider = ({ children }) => {
 		console.log("AuthContext: activate sendo chamado.");
 		startLoading();
 		try {
-			const response = await activateAccount(activationId);
+			const response = await activateAccount(activationId); // Chama o serviço real
 			if (response.success) {
 				toast.success(response.message);
 				console.log("AuthContext: Ativação bem-sucedida.");
-				return { success: true };
+				return { success: true, message: response.message }; // Retorna mensagem de sucesso
 			} else {
 				toast.error(response.message);
-				return { success: false, message: response.message };
+				console.log("AuthContext: Ativação de conta falhou.");
+				return { success: false, message: response.message }; // Retorna mensagem de erro
 			}
 		} catch (error) {
-			console.error("AuthContext: Ativação de conta falhou:", error);
+			console.error('AuthContext: Ativação de conta falhou:', error);
 			toast.error(error.message);
+			throw error;
+		} finally {
+			stopLoading();
+		}
+	}, [startLoading, stopLoading]);
+
+	const resendActivationToken = useCallback(async (tokenFromPage) => { // <--- Aceita o token
+		console.log("AuthContext: resendActivationToken sendo chamado com token:", tokenFromPage);
+		startLoading();
+		try {
+			const result = await authServiceResendActivationToken(tokenFromPage); // <--- Passa o token para o serviço
+			if (result.success) {
+				toast.success(result.message);
+				console.log("AuthContext: Reenvio de token bem-sucedido.");
+				return { success: true, message: result.message };
+			} else {
+				toast.error(result.message);
+				console.log("AuthContext: Reenvio de token falhou. Mensagem:", result.message);
+				return { success: false, message: result.message };
+			}
+		} catch (error) {
+			console.error("AuthContext: Erro na execução de resendActivationToken:", error);
+			toast.error(error.message || "Erro ao tentar reenviar token de ativação.");
 			throw error;
 		} finally {
 			stopLoading();
@@ -210,7 +242,7 @@ export const AuthProvider = ({ children }) => {
 			return;
 		}
 
-		initialAuthCheckDone.current = true; // <--- Marcar imediatamente!
+		initialAuthCheckDone.current = true;
 		console.log("AuthContext useEffect: Flag marcada como true imediatamente.");
 
 		const revalidateSession = async () => {
@@ -274,9 +306,11 @@ export const AuthProvider = ({ children }) => {
 		user,
 		login,
 		register,
+		activate,
 		logout,
+		resendActivationToken,
 		isLoadingAuth: isLoading,
-	}), [isAuthenticated, isAuthCheckDone, user, login, register, logout, isLoading]);
+	}), [isAuthenticated, isAuthCheckDone, user, login, register, activate, logout, resendActivationToken, isLoading]);
 
 	return (
 		<AuthContext.Provider value={authContextValue}>

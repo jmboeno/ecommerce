@@ -1,13 +1,14 @@
-const { User, RefreshToken, BlacklistedToken } = require("../models");
+const { User, RefreshToken, BlacklistedToken, sequelize } = require("../models");
 const { sign, verify, decode } = require("jsonwebtoken");
 const jsonSecret = require("../config/jsonSecret");
 const { insertAcl } = require("./securityService");
 const { Op } = require('sequelize');
+const { sendActivationEmail } = require("./emailService");
 
 const MIN_LOGIN_TIME_MS = 2000;
 const CUSTOMER_ROLE_ID = "48cc1519-d135-47af-83a7-5d7d48635b82";
 const ACTIVATION_TOKEN_EXPIRATION = "1d";
-const ACTIVATION_URL_BASE = "http://localhost:3000/auth/activate";
+const ACTIVATION_URL_BASE = "http://localhost:5173/auth/activate";
 
 // --- Função auxiliar para gerar tokens ---
 async function generatePairToken(user) {
@@ -57,7 +58,6 @@ async function generatePairToken(user) {
 			id: user.id,
 			name: user.name,
 			email: user.email,
-			active: user.active,
 			phone: user.phone
 		}
 	};
@@ -98,18 +98,18 @@ async function authenticate({ email, password }) {
 	return response;
 }
 
-// --- Função de registro de usuário ---
 async function registerUser({ name, email, password, phone }) {
 	if (!name || !email || !password) {
 		return { success: false, message: "Nome, email e senha são obrigatórios." };
 	}
 
-	try {
-		const createdUser = await User.create({ name, email, password, phone, active: false });
+	const t = await sequelize.transaction();
 
-		if (!createdUser) {
-			return { success: false, message: "Erro ao criar usuário no banco de dados." };
-		}
+	try {
+		const createdUser = await User.create(
+			{ name, email, password, phone, active: false },
+			{ transaction: t }
+		);
 
 		const activationToken = sign(
 			{ id: createdUser.id, email: createdUser.email },
@@ -119,22 +119,34 @@ async function registerUser({ name, email, password, phone }) {
 
 		const activationLink = `${ACTIVATION_URL_BASE}/${activationToken}`;
 
+		console.log(createdUser);
+
 		await insertAcl({
 			user_id: createdUser.id,
 			roles: [CUSTOMER_ROLE_ID],
 			permission: [],
-		});
+		}, { transaction: t }); // se insertAcl suporta passar transaction
+
+		// Tente enviar o email de ativação (aguarde o resultado)
+		await sendActivationEmail(createdUser.email, activationLink, createdUser.name);
+
+		await t.commit();
 
 		return {
 			success: true,
 			message: "Usuário registrado com sucesso! Verifique seu e-mail para ativar a conta.",
 			user_id: createdUser.id,
-			activationLink
 		};
 	} catch (error) {
+		await t.rollback();
+
 		console.error("Erro no registro de usuário:", error);
 		if (error.name === 'SequelizeUniqueConstraintError') {
 			return { success: false, message: "Este e-mail já está cadastrado." };
+		}
+		if (error.response || error.code) {
+			// Exemplo de erro de envio de email
+			return { success: false, message: "Erro ao enviar email de ativação. Tente novamente." };
 		}
 		return { success: false, message: error.message || "Erro interno do servidor ao registrar usuário." };
 	}
@@ -202,12 +214,8 @@ async function activateUserByToken(token) {
 		const payload = verify(token, jsonSecret.activationSecret);
 		const user = await User.findByPk(payload.id);
 
-		if (!user) {
-			return { success: false, message: "Usuário não encontrado" };
-		}
-
 		if (user.active) {
-			return { success: false, message: "Usuário já ativado" };
+			return { success: false, message: "Token de ativação inválido ou expirado" };
 		}
 
 		user.active = true;
@@ -249,10 +257,73 @@ async function logoutService(token) {
 	}
 }
 
+/**
+ * Lógica para reenviar um link de ativação com base em um token expirado/inválido.
+ * Esta função deve ser chamada APENAS pelo backend.
+ * @param {string} token - O token de ativação (pode estar expirado ou inválido).
+ * @returns {Promise<object>} - { success: boolean, message: string, activationLink?: string }
+ */
+async function resendActivationLinkService(token) {
+	if (!token) {
+		throw new Error("Token de ativação não fornecido."); // O controller deve validar isso, mas é um bom guarda
+	}
+
+	try {
+		// Tenta verificar o token. Se ele estiver expirado, `verify` lançará um erro.
+		// Se for para um reenvio, esperamos que o token original esteja expirado.
+		let payload;
+		try {
+			payload = verify(token, jsonSecret.activationSecret); // Tenta verificar normalmente
+		} catch (error) {
+			if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+				// Se o token estiver expirado ou for inválido, decodificamos apenas o payload
+				// para tentar buscar o usuário e reenviar o link.
+				// Isso permite reenviar links mesmo que o original tenha expirado.
+				payload = decode(token);
+				if (!payload || !payload.id) {
+					throw new Error("Payload do token inválido para reenviar.");
+				}
+			} else {
+				throw error; // Outros erros não relacionados a JWT
+			}
+		}
+
+		const user = await User.findByPk(payload.id); // Busca o usuário pelo ID do token
+
+		if (!user) {
+			throw new Error("Usuário não encontrado para este token.");
+		}
+
+		if (user.active) {
+			throw new Error("Sua conta já está ativa. Por favor, faça login.");
+		}
+
+		// Gera um novo token de ativação
+		const newActivationToken = sign(
+			{ id: user.id, email: user.email },
+			jsonSecret.activationSecret,
+			{ expiresIn: ACTIVATION_TOKEN_EXPIRATION }
+		);
+
+		const activationLink = `${ACTIVATION_URL_BASE}/${newActivationToken}`; // URL do seu frontend
+		// TODO: Chame seu serviço de envio de e-mail aqui
+		// Ex: await sendActivationEmail(user.email, activationLink);
+		console.log(`[BACKEND - SERVICE] Novo link de ativação gerado e "enviado" para ${user.email}: ${activationLink}`);
+
+		return { success: true, message: "Link de ativação reenviado para o seu e-mail!", activationLink: activationLink };
+
+	} catch (error) {
+		console.error("Erro no resendActivationLinkService:", error);
+		// Os erros lançados aqui serão capturados pelo controller.
+		throw error; // Re-lança o erro com a mensagem original ou um erro genérico
+	}
+}
+
 module.exports = {
 	authenticate,
 	refreshTokenService,
 	logoutService,
 	activateUserByToken,
-	registerUser
+	registerUser,
+	resendActivationLinkService
 };

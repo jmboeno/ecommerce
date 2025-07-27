@@ -1,9 +1,9 @@
-// src/components/pages/LoginPage/LoginPage.js
+// src/components/pages/LoginPage/LoginPage.jsx
 import React, { useState, useContext } from 'react';
 import AuthLayout from '../../templates/AuthLayout/AuthLayout';
 import LoginForm from '../../orgs/LoginForm/LoginForm';
-import { AuthContext } from '../../../context/AuthContext.jsx'; // We'll create this next
-import { LoadingContext } from '../../../context/LoadingContext'; // We'll create this next
+import { AuthContext } from '../../../context/AuthContext';
+import { LoadingContext } from '../../../context/LoadingContext';
 
 const LoginPage = () => {
 	const { login } = useContext(AuthContext);
@@ -25,7 +25,10 @@ const LoginPage = () => {
 			title="Welcome Back"
 			description="Sign in to access your dashboard"
 		>
-			<LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+			<LoginForm
+				onSubmit={handleLogin} 
+				isLoading={isLoading} 
+			/>
 		</AuthLayout>
 	);
 };

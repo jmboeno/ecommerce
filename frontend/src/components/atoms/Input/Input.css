@@ -22,3 +22,7 @@
 .input.error {
 	border-color: var(--error-color);
 }
+
+.input.with-icon {
+	padding-left: 40px; /* ou o valor necessário para evitar sobreposição do ícone */
+}

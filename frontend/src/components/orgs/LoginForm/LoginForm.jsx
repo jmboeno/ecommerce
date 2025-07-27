@@ -1,10 +1,9 @@
-// src/components/orgs/LoginForm/LoginForm.js
 import React, { useState } from 'react';
 import FormField from '../../mols/FormField/FormField';
 import Button from '../../atoms/Button/Button';
 import CheckboxWithLabel from '../../mols/CheckboxWithLabel/CheckboxWithLabel';
 import Text from '../../atoms/Text/Text';
-import './LoginForm.css'; // Create LoginForm.css
+import './LoginForm.css';
 
 const LoginForm = ({ onSubmit, isLoading }) => {
 	const [email, setEmail] = useState('');

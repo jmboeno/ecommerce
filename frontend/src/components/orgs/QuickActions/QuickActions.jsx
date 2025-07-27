@@ -1,8 +1,7 @@
-// src/components/orgs/QuickActions/QuickActions.js
 import React from 'react';
 import Text from '../../atoms/Text/Text';
 import QuickActionButton from '../../mols/QuickActionButton/QuickActionButton';
-import './QuickActions.css'; // Create QuickActions.css
+import './QuickActions.css';
 
 const QuickActions = () => {
 	const handleAddUser = () => alert('Add User clicked!');

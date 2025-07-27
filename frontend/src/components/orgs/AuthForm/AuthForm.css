@@ -13,13 +13,15 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	align-items: flex-start;
+	align-items: center;
 	gap: 20px;
+	text-align: center;
 }
 
 .sidebar-header {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 10px;
 	margin-bottom: 40px;
 }
@@ -39,25 +41,29 @@
 	font-weight: 700;
 	margin-bottom: 10px;
 	line-height: 1.2;
+	text-align: center;
 }
 
 .sidebar-description {
 	font-size: 1.1rem;
 	margin-bottom: 30px;
 	opacity: 0.9;
+	text-align: center;
 }
 
 .feature-list {
 	list-style: none;
 	padding: 0;
 	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
 }
 
 .feature-list li {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	margin-bottom: 15px;
 	font-size: 1.05rem;
 }
 
@@ -100,14 +106,32 @@
 	font-size: 2.2rem;
 	font-weight: 700;
 	margin-bottom: 10px;
-	text-align: left;
+	text-align: center;
 }
 
 .auth-form-wrapper .form-description {
 	font-size: 1rem;
 	color: var(--placeholder-color);
 	margin-bottom: 30px;
-	text-align: left;
+	text-align: center;
+}
+
+/* Fix para forçar cor branca nos textos do sidebar */
+.auth-sidebar .sidebar-title,
+.auth-sidebar .sidebar-description,
+.auth-sidebar .feature-list li {
+	color: white !important;
+}
+
+/* Garante que todos os elementos Text herdem a cor branca */
+.auth-sidebar * {
+	color: inherit;
+}
+
+/* Regra mais específica para componentes Text se necessário */
+.auth-sidebar [class*="text-"],
+.auth-sidebar .text-component {
+	color: white !important;
 }
 
 @media (max-width: 900px) {

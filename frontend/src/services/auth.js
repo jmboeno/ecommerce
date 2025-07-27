@@ -180,3 +180,24 @@ export const fetchCurrentUser = async () => {
 		};
 	}
 };
+
+/**
+ * Sends a request to the backend to resend an activation token to a user's email.
+ * O backend irá decodificar o token e reenviar o email para o usuário associado.
+ * @param {string} token - O token de ativação da URL.
+ * @returns {Promise<object>} - Mensagem de sucesso/falha.
+ */
+export const resendActivationToken = async (token) => { // <--- Aceita o token
+	try {
+		// Envia o token no corpo da requisição POST
+		const response = await axios.post(`${API_BASE_URL}/resend-activation-token`, { token });
+		return { success: true, message: response.data.message || "Link de ativação reenviado. Verifique seu e-mail." };
+	} catch (error) {
+		console.error('Error resending activation token:', error.response?.data || error.message);
+		throw {
+			success: false,
+			message: error.response?.data?.message || 'Falha ao reenviar link de ativação.',
+			statusCode: error.response?.status,
+		};
+	}
+};
